@@ -51,11 +51,17 @@ sudo ./telegraf-better-ping \
 
 It prints out PING responses to standard output, in the [InfluxDB line protocol](https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/) format.
 ```
-# PING 2001:db8::2 with 56 bytes of data, will start in 0.500 seconds.
-ping,dest=::1 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=1u,hop_limit=64u,rtt=0.001000000 1700000000500000000
-ping,dest=::1 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=2u,hop_limit=64u,rtt=0.001000000 1700000001500000000
-ping,dest=::1 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=3u,hop_limit=64u,rtt=0.001000000 1700000002500000000
-ping,dest=::1 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=4u,hop_limit=64u,rtt=0.001000000 1700000003500000000
+# PING 192.168.0.2 with 56 bytes of data, will start in 0.250 seconds.
+# PING 2001:db8::2 with 56 bytes of data, will start in 0.750 seconds.
+ping,dest=192.168.0.2 size=64u,reply_from="192.168.0.2",reply_to="192.168.0.1",icmp_id=43690u,icmp_seq=1u,hop_limit=64u,rtt=0.001000000 1700000000250000000
+ping,dest=2001:db8::2 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=1u,hop_limit=64u,rtt=0.001000000 1700000000750000000
+ping,dest=192.168.0.2 size=64u,reply_from="192.168.0.2",reply_to="192.168.0.1",icmp_id=43690u,icmp_seq=2u,hop_limit=64u,rtt=0.001000000 1700000001250000000
+ping,dest=2001:db8::2 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=2u,hop_limit=64u,rtt=0.001000000 1700000001750000000
+ping,dest=192.168.0.2 size=64u,reply_from="192.168.0.2",reply_to="192.168.0.1",icmp_id=43690u,icmp_seq=3u,hop_limit=64u,rtt=0.001000000 1700000002250000000
+ping,dest=2001:db8::2 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=3u,hop_limit=64u,rtt=0.001000000 1700000002750000000
+ping,dest=192.168.0.2 size=64u,reply_from="192.168.0.2",reply_to="192.168.0.1",icmp_id=43690u,icmp_seq=4u,hop_limit=64u,rtt=0.001000000 1700000003250000000
+ping,dest=2001:db8::2 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=4u,hop_limit=64u,rtt=0.001000000 1700000003750000000
+...
 ```
 
 ## Running in Docker
