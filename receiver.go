@@ -65,13 +65,13 @@ func printResponse(state *AppState, resp *ICMPResponse) {
 	if len(resp.Comment) != 0 {
 		sb.WriteString(fmt.Sprintf(",comment=%s", influxDB_escape.EscapeKey(resp.Comment)))
 	}
-	sb.WriteString(fmt.Sprintf(" size=%d,reply_from=%s,", resp.Size, influxDB_escape.EscapeValue(resp.ReplyFrom.String())))
+	sb.WriteString(fmt.Sprintf(" size=%du,reply_from=%s,", resp.Size, influxDB_escape.EscapeValue(resp.ReplyFrom.String())))
 	if resp.ReplyTo != nil {
 		sb.WriteString(fmt.Sprintf("reply_to=%s,", influxDB_escape.EscapeValue(resp.ReplyTo.String())))
 	}
-	sb.WriteString(fmt.Sprintf("icmp_id=%d,icmp_seq=%d,", resp.ID, resp.Seq))
+	sb.WriteString(fmt.Sprintf("icmp_id=%du,icmp_seq=%du,", resp.ID, resp.Seq))
 	if resp.HasHopLimit {
-		sb.WriteString(fmt.Sprintf("hop_limit=%d,", resp.HopLimit))
+		sb.WriteString(fmt.Sprintf("hop_limit=%du,", resp.HopLimit))
 	}
 	sb.WriteString(fmt.Sprintf("rtt=%d.%09d %d\n", rttInt, rttFrac, resp.RecvTime.UnixNano()))
 	fmt.Print(sb.String())

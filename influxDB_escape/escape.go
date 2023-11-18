@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	escapeKeyRegex   = regexp.MustCompile(`[\n ,=\\]`)
-	escapeValueRegex = regexp.MustCompile(`["\\]`)
+	escapeKeyRegex   = regexp.MustCompile(`([\n ,=\\])`)
+	escapeValueRegex = regexp.MustCompile(`(["\\])`)
 )
 
 func EscapeKey(key string) string {
