@@ -7,7 +7,7 @@ RUN apt-get update -y && \
     go build -C /root/telegraf-better-ping -o /root/telegraf-better-ping/telegraf-better-ping -v && \
     setcap cap_net_raw,cap_net_bind_service+ep /root/telegraf-better-ping/telegraf-better-ping
 
-FROM telegraf
+FROM telegraf:latest
 
 ENV INFLUX_URL=http://localhost:8086 \
     INFLUX_TOKEN= \

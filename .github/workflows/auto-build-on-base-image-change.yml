@@ -1,4 +1,8 @@
-# https://www.flypenguin.de/2021/07/30/auto-rebuild-docker-images-if-base-image-changes-using-github-actions/
+# sources:
+#   - https://www.flypenguin.de/2021/07/30/auto-rebuild-docker-images-if-base-image-changes-using-github-actions/
+#   - https://git.io/JZns3
+#   - https://git.io/JB2AX
+#   - https://git.io/JB2x0
 
 name: Regular base image update check
 on:
@@ -20,8 +24,8 @@ jobs:
         id: baseupdatecheck
         uses: lucacome/docker-image-update-checker@v1.1.0
         with:
-          base-image: telegraf
-          image: m13253/telegraf-better-ping # update for your image
+          base-image: telegraf:latest 
+          image: m13253/telegraf-better-ping
 
       # only execute subsequent steps if an update is actually NEEDED.
       # unfortunately we need to add an if-condition to all steps now
@@ -30,16 +34,16 @@ jobs:
       # see also https://github.com/actions/runner/issues/662
 
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v1 
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
         if: steps.baseupdatecheck.outputs.needs-updating == 'true'
-
+          
       - name: Build and push Docker images
         uses: docker/build-push-action@v2.6.1
         with:
           context: "${{ github.workspace }}"
           push: true
-          tags: m13253/telegraf-better-ping:latest # update for your image
+          tags: m13253/telegraf-better-ping:latest
         if: steps.baseupdatecheck.outputs.needs-updating == 'true'
