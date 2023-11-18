@@ -41,14 +41,14 @@ sudo ./telegraf-better-ping \
     --comment='Cloudflare DNS IPv4 (backup)' 1.0.0.1 \
     --comment='Cloudflare DNS IPv6 (main)'   2606:4700:4700::1111 \
     --comment='Cloudflare DNS IPv6 (backup)' 2606:4700:4700::1001 \
-    --comment='Google DNS IPv4 (main)'   8.8.8.8 \
-    --comment='Google DNS IPv4 (backup)' 8.8.4.4 \
-    --comment='Google DNS IPv6 (main)'   2001:4860:4860::8888 \
-    --comment='Google DNS IPv6 (backup)' 2001:4860:4860::8844 \
-    --comment='Google WWW IPv4'     -4 www.google.com \
-    --comment='Google WWW IPv6'     -6 www.google.com \
-    --comment='Cloudflare WWW IPv4' -4 www.cloudflare.com \
-    --comment='Cloudflare WWW IPv6' -6 www.cloudflare.com
+    --comment='Google DNS IPv4 (main)'       8.8.8.8 \
+    --comment='Google DNS IPv4 (backup)'     8.8.4.4 \
+    --comment='Google DNS IPv6 (main)'       2001:4860:4860::8888 \
+    --comment='Google DNS IPv6 (backup)'     2001:4860:4860::8844 \
+    --comment='Cloudflare WWW IPv4'       -4 www.cloudflare.com \
+    --comment='Cloudflare WWW IPv6'       -6 www.cloudflare.com \
+    --comment='Google WWW IPv4'           -4 www.google.com \
+    --comment='Google WWW IPv6'           -6 www.google.com
 ```
 
 It prints out PING responses to standard output, in the [InfluxDB line protocol](https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/) format.
