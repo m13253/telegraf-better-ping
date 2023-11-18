@@ -27,7 +27,7 @@ type ICMPResponse struct {
 	ReplyFrom   net.Addr
 	ReplyTo     net.Addr
 	RTT         time.Duration
-	Seq         int
+	Seq         uint16
 	Size        int
 }
 
@@ -115,7 +115,7 @@ func processResponse(state *AppState, size int, src, dst net.Addr, recvTime time
 					ReplyFrom:   src,
 					ReplyTo:     dst,
 					RTT:         rtt,
-					Seq:         body.Seq + 1,
+					Seq:         uint16(body.Seq),
 					Size:        size,
 				})
 			}

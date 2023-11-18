@@ -46,6 +46,8 @@ func startSender(state *AppState, dest *DestinationState, wg *sync.WaitGroup) {
 	)
 	ticker := time.NewTicker(dest.Params.Interval)
 	defer ticker.Stop()
+
+out:
 	for ; ; <-ticker.C {
 		addrs, err := net.LookupHost(dest.Params.Destination)
 		if err != nil {
@@ -62,6 +64,10 @@ func startSender(state *AppState, dest *DestinationState, wg *sync.WaitGroup) {
 			}
 			dest.Crypt[0].Store(crypt)
 		}
+		// Yes, integer overflow is defined behavior in Go.
+		// https://go.dev/ref/spec#Integer_overflow
+		seq++
+
 		var firstErr error
 		for _, addr := range addrs {
 			ipv4Packet, ipv6Packet := prepareRequestBody(state, dest, seq, crypt)
@@ -69,7 +75,7 @@ func startSender(state *AppState, dest *DestinationState, wg *sync.WaitGroup) {
 				if ipv6Addr, err := net.ResolveIPAddr("ip6", addr); err == nil {
 					_, err = ipv6Conn.WriteTo(ipv6Packet, nil, ipv6Addr)
 					if err == nil {
-						goto packetHasSent
+						continue out
 					}
 					firstErr = err
 				}
@@ -78,7 +84,7 @@ func startSender(state *AppState, dest *DestinationState, wg *sync.WaitGroup) {
 				if ipv4Addr, err := net.ResolveIPAddr("ip4", addr); err == nil {
 					_, err = ipv4Conn.WriteTo(ipv4Packet, nil, ipv4Addr)
 					if err == nil {
-						goto packetHasSent
+						continue out
 					}
 					firstErr = err
 				}
@@ -89,10 +95,6 @@ func startSender(state *AppState, dest *DestinationState, wg *sync.WaitGroup) {
 		} else {
 			log.Printf("failed to ping %s: no available address\n", dest.Params.Destination)
 		}
-	packetHasSent:
-		// Yes, integer overflow is defined behavior in Go.
-		// https://go.dev/ref/spec#Integer_overflow
-		seq++
 	}
 }
 

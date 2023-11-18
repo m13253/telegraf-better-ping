@@ -27,16 +27,17 @@ func (rng *CSPRNG) Read(buf []byte) (n int, err error) {
 		buf[i] = 0
 	}
 	rng.mtx.Lock()
+out:
 	for len(buf) != 0 {
 		if rng.remaining == 0 {
 			var init [chacha20.KeySize + chacha20.NonceSize]byte
 			_, err = rand.Read(init[:])
 			if err != nil {
-				goto end
+				break out
 			}
 			rng.cipher, err = chacha20.NewUnauthenticatedCipher(init[:chacha20.KeySize], init[chacha20.KeySize:])
 			if err != nil {
-				goto end
+				break out
 			}
 			rng.remaining = chacha20BlockSize * chacha20RekeyCount
 		}
@@ -46,7 +47,6 @@ func (rng *CSPRNG) Read(buf []byte) (n int, err error) {
 		buf = buf[step:]
 		n += int(step)
 	}
-end:
 	rng.mtx.Unlock()
 	if err != nil {
 		err = fmt.Errorf("failed to generate random numbers: %w", err)
@@ -57,11 +57,9 @@ end:
 func (rng *CSPRNG) Chacha20Poly1305() (c cipher.AEAD, err error) {
 	var key [chacha20poly1305.KeySize]byte
 	_, err = rng.Read(key[:])
-	if err != nil {
-		goto end
+	if err == nil {
+		c, err = chacha20poly1305.New(key[:])
 	}
-	c, err = chacha20poly1305.New(key[:])
-end:
 	if err != nil {
 		err = fmt.Errorf("failed to initialize cipher: %w", err)
 	}
