@@ -66,14 +66,14 @@ ping,dest=2001:db8::2 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",i
 
 ## Running in Docker
 
-### Set up database storage
+### Setting up database storage
 
 First, create a directory outside Docker to store databases, so you will not lose it during future upgrades:
 ```bash
 mkdir -p /var/lib/docker-volumes/{grafana,influxdb}
 ```
 
-### Set up InfluxDB
+### Setting up InfluxDB
 
 ```bash
 docker pull influxdb:latest
@@ -87,7 +87,7 @@ Take notes of:
 * Your username and password
 * Your organization name and bucket name
 
-### Set up Telegraf-better-ping
+### Setting up Telegraf-better-ping
 
 Easy method: Passing configuration through environment variables.
 
@@ -143,7 +143,7 @@ docker create --name telegraf-better-ping-1 --link influxdb-1:influxdb \
 docker start telegraf-better-ping-1
 ```
 
-### Set up Grafana
+### Setting up Grafana
 
 Log into `http://127.0.0.1:8086` again, choose “Load Data” → “API Tokens” from the left-side menu.
 
