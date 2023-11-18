@@ -5,7 +5,6 @@ A better Ping monitoring plugin for Telegraf / InfluxDB
 ## Command line interface
 
 This program can be run independently without Telegraf.
-
 ```
 Usage:
   telegraf-better-ping {[OPTIONS] [--dest=]DESTINATION} [[OPTIONS] [--dest=]DESTINATION]...
@@ -32,7 +31,6 @@ Notes:
 ```
 
 For example:
-
 ```bash
 sudo ./telegraf-better-ping \
     --comment='Cloudflare DNS IPv4 (main)'   1.1.1.1 \
@@ -83,6 +81,7 @@ docker create --name influxdb-1 \
     influxdb:latest
 docker start influxdb-1
 ```
+
 Open your browser, go to `http://127.0.0.1:8086` to go through the first-time setup.
 
 Take notes of:
@@ -245,7 +244,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 
 Choose “Apply” in the top-right corner.
 
-Then, choose 💾 in the top-right corner.
+Then, choose 💾 in the top-right corner. Save your dashboard.
 
 ## Caveats
 
