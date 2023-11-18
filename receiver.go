@@ -78,8 +78,8 @@ func printResponse(state *AppState, resp *ICMPResponse) {
 }
 
 func processResponse(state *AppState, size int, src, dst net.Addr, recvTime time.Time, hasHopLimit bool, hopLimit uint8, body *icmp.Echo) {
-	if len(body.Data) < 42 {
-		log.Printf("failed to decipher ICMP message from %s: body is less than 42 bytes long", src)
+	if len(body.Data) < 40 {
+		log.Printf("failed to decipher ICMP message from %s: body is less than 40 bytes long", src)
 		return
 	}
 
