@@ -275,4 +275,4 @@ Docker comes with no IPv6 connectivity by default.
 
 Please refer to the [Docker manuals](https://docs.docker.com/config/daemon/ipv6/) to enable IPv6 support.
 
-Alternatively, you can run Telegraf [using the host network](https://docs.docker.com/network/network-tutorial-host/). However, be aware that host network may not support `--link`.
+Alternatively, you can run Telegraf-better-ping [using the host network](https://docs.docker.com/network/network-tutorial-host/). However, be aware that host network may not support `--link`.
