@@ -13,6 +13,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	startReceivers(state)
-	startSenders(state)
+	state.startReceivers()
+	state.startSenders()
 }

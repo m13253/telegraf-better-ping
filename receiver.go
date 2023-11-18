@@ -16,7 +16,7 @@ import (
 	"golang.org/x/net/ipv6"
 )
 
-type ICMPResponse struct {
+type icmpResponse struct {
 	Comment     string
 	Destination string
 	HasHopLimit bool
@@ -31,7 +31,7 @@ type ICMPResponse struct {
 	Size        int
 }
 
-func startReceivers(state *AppState) {
+func (app *appState) startReceivers() {
 	ipv4Conn, err := icmp.ListenPacket("ip4:1", "")
 	if err != nil {
 		log.Fatalf("failed to listen on ICMP protocol: %v\n", err)
@@ -46,11 +46,11 @@ func startReceivers(state *AppState) {
 	ipv6PacketConn := ipv6Conn.IPv6PacketConn()
 	ipv6PacketConn.SetControlMessage(ipv6.FlagHopLimit, true)
 	ipv6PacketConn.SetControlMessage(ipv6.FlagDst, true)
-	go startIPv4Receiver(state, ipv4PacketConn)
-	go startIPv6Receiver(state, ipv6PacketConn)
+	go app.startIPv4Receiver(ipv4PacketConn)
+	go app.startIPv6Receiver(ipv6PacketConn)
 }
 
-func printResponse(state *AppState, resp *ICMPResponse) {
+func (app *appState) printResponse(resp *icmpResponse) {
 	rttInt := resp.RTT / 1000000000
 	rttFrac := resp.RTT % 1000000000
 	if rttFrac < 0 {
@@ -77,7 +77,7 @@ func printResponse(state *AppState, resp *ICMPResponse) {
 	fmt.Print(sb.String())
 }
 
-func processResponse(state *AppState, size int, src, dst net.Addr, recvTime time.Time, hasHopLimit bool, hopLimit uint8, body *icmp.Echo) {
+func (app *appState) processResponse(size int, src, dst net.Addr, recvTime time.Time, hasHopLimit bool, hopLimit uint8, body *icmp.Echo) {
 	if len(body.Data) < 40 {
 		log.Printf("failed to decipher ICMP message from %s: body is less than 40 bytes long", src)
 		return
@@ -91,8 +91,8 @@ func processResponse(state *AppState, size int, src, dst net.Addr, recvTime time
 	additional := body.Data[8:16]
 	ciphertext := body.Data[16:]
 
-	for i := range state.Destinations {
-		dest := &state.Destinations[i]
+	for i := range app.Destinations {
+		dest := &app.Destinations[i]
 		for j := 0; j < 2; j++ {
 			if crypt, ok := dest.Crypt[j].Load().(cipher.AEAD); ok {
 				payload, err := crypt.Open(nil, nonce[:], ciphertext, additional)
@@ -101,10 +101,10 @@ func processResponse(state *AppState, size int, src, dst net.Addr, recvTime time
 				}
 
 				sendTimeSinceEpoch := time.Duration(binary.BigEndian.Uint64(payload[:8]))
-				recvTimeSinceEpoch := recvTime.Sub(state.Epoch)
+				recvTimeSinceEpoch := recvTime.Sub(app.Epoch)
 				rtt := recvTimeSinceEpoch - sendTimeSinceEpoch
 
-				printResponse(state, &ICMPResponse{
+				app.printResponse(&icmpResponse{
 					Comment:     dest.Params.Comment,
 					Destination: dest.Params.Destination,
 					HasHopLimit: hasHopLimit,
@@ -123,14 +123,14 @@ func processResponse(state *AppState, size int, src, dst net.Addr, recvTime time
 	}
 }
 
-func startIPv4Receiver(state *AppState, ipv4Conn *ipv4.PacketConn) {
+func (app *appState) startIPv4Receiver(ipv4Conn *ipv4.PacketConn) {
 	var buf [65536]byte
 	for {
 		n, cm, src, err := ipv4Conn.ReadFrom(buf[:])
 		if err != nil {
 			log.Fatalf("failed to receive ICMP message: %v\n", err)
 		}
-		recvTime := IncreasingNow(state)
+		recvTime := app.IncreasingNow()
 		var (
 			hasTTL bool
 			ttl    uint8
@@ -147,19 +147,19 @@ func startIPv4Receiver(state *AppState, ipv4Conn *ipv4.PacketConn) {
 			continue
 		}
 		if body, ok := msg.Body.(*icmp.Echo); ok {
-			processResponse(state, n, src, dst, recvTime, hasTTL, ttl, body)
+			app.processResponse(n, src, dst, recvTime, hasTTL, ttl, body)
 		}
 	}
 }
 
-func startIPv6Receiver(state *AppState, ipv6Conn *ipv6.PacketConn) {
+func (app *appState) startIPv6Receiver(ipv6Conn *ipv6.PacketConn) {
 	var buf [65536]byte
 	for {
 		n, cm, src, err := ipv6Conn.ReadFrom(buf[:])
 		if err != nil {
 			log.Fatalf("failed to receive ICMPv6 message: %v\n", err)
 		}
-		recvTime := IncreasingNow(state)
+		recvTime := app.IncreasingNow()
 		var (
 			hasHopLimit bool
 			hopLimit    uint8
@@ -176,7 +176,7 @@ func startIPv6Receiver(state *AppState, ipv6Conn *ipv6.PacketConn) {
 			continue
 		}
 		if body, ok := msg.Body.(*icmp.Echo); ok {
-			processResponse(state, n, src, dst, recvTime, hasHopLimit, hopLimit, body)
+			app.processResponse(n, src, dst, recvTime, hasHopLimit, hopLimit, body)
 		}
 	}
 }

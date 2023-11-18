@@ -19,19 +19,19 @@ import (
 	"golang.org/x/net/ipv6"
 )
 
-func startSenders(state *AppState) {
+func (app *appState) startSenders() {
 	var wg sync.WaitGroup
-	for i := range state.Destinations {
-		dest := &state.Destinations[i]
+	for i := range app.Destinations {
+		dest := &app.Destinations[i]
 		wg.Add(1)
-		go startSender(state, dest, &wg)
+		go app.startSender(dest, &wg)
 	}
 	wg.Wait()
 	os.Exit(1)
 }
 
-func startSender(state *AppState, dest *DestinationState, wg *sync.WaitGroup) {
-	ipv4Conn, ipv6Conn, err := createSendConn(dest.Params)
+func (app *appState) startSender(dest *destinationState, wg *sync.WaitGroup) {
+	ipv4Conn, ipv6Conn, err := app.createSendConn(dest.Params)
 	if err != nil {
 		log.Println(err)
 		wg.Done()
@@ -58,7 +58,7 @@ out:
 			if crypt != nil {
 				dest.Crypt[1].Store(crypt)
 			}
-			crypt, err = state.RandomGenerator.Chacha20Poly1305()
+			crypt, err = app.RandomGenerator.Chacha20Poly1305()
 			if err != nil {
 				log.Fatalf("failed to initialize destination %s: %v\n", dest.Params.Destination, err)
 			}
@@ -70,7 +70,7 @@ out:
 
 		var firstErr error
 		for _, addr := range addrs {
-			ipv4Packet, ipv6Packet := prepareRequestBody(state, dest, seq, crypt)
+			ipv4Packet, ipv6Packet := app.prepareRequestBody(dest, seq, crypt)
 			if ipv6Conn != nil {
 				if ipv6Addr, err := net.ResolveIPAddr("ip6", addr); err == nil {
 					_, err = ipv6Conn.WriteTo(ipv6Packet, nil, ipv6Addr)
@@ -98,9 +98,9 @@ out:
 	}
 }
 
-func prepareRequestBody(state *AppState, dest *DestinationState, seq uint16, crypt cipher.AEAD) (ipv4Packet, ipv6Packet []byte) {
+func (app *appState) prepareRequestBody(dest *destinationState, seq uint16, crypt cipher.AEAD) (ipv4Packet, ipv6Packet []byte) {
 	sendTime := time.Now()
-	sendTimeSinceEpoch := sendTime.Sub(state.Epoch)
+	sendTimeSinceEpoch := sendTime.Sub(app.Epoch)
 	unixTimeSec := sendTime.Unix()
 	unixTimeMSec := sendTime.Nanosecond() / 1000
 
@@ -143,7 +143,7 @@ func prepareRequestBody(state *AppState, dest *DestinationState, seq uint16, cry
 	return
 }
 
-func createSendConn(dest *params.DestinationParams) (ipv4Conn *ipv4.PacketConn, ipv6Conn *ipv6.PacketConn, err error) {
+func (app *appState) createSendConn(dest *params.DestinationParams) (ipv4Conn *ipv4.PacketConn, ipv6Conn *ipv6.PacketConn, err error) {
 	switch dest.Protocol {
 	case "ip":
 		icmpConn, ipv4Err := icmp.ListenPacket("ip4:1", dest.Source)
