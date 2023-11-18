@@ -68,18 +68,18 @@ ping,dest=2001:db8::2 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",i
 
 First, create a directory outside Docker to store databases, so you will not lose it during future upgrades:
 ```bash
-mkdir -p /var/lib/docker-volumes/{grafana,influxdb}
+$ mkdir -p /var/lib/docker-volumes/{grafana,influxdb}
 ```
 
 ### 2. Setting up InfluxDB
 
 ```bash
-docker pull influxdb:latest
-docker create --name influxdb-1 \
+$ docker pull influxdb:latest
+$ docker create --name influxdb-1 \
     -p 127.0.0.1:8086:8086/tcp \
     -v /var/lib/docker-volumes/influxdb:/var/lib/influxdb2 \
     influxdb:latest
-docker start influxdb-1
+$ docker start influxdb-1
 ```
 
 Open your browser, go to `http://127.0.0.1:8086` to go through the first-time setup.
@@ -102,8 +102,8 @@ Choose “Generate API Token” → “Custom API Token”. Use the following se
 Take note of your Telegraf-better-ping token.
 
 ```bash
-docker pull m13253/telegraf-better-ping:latest
-docker create --name telegraf-better-ping-1 \
+$ docker pull m13253/telegraf-better-ping:latest
+$ docker create --name telegraf-better-ping-1 \
     --link influxdb-1:influxdb \
     -e INFLUX_URL='http://influxdb:8086' \
     -e INFLUX_TOKEN='<your Telegraf-better-ping token>' \
@@ -111,7 +111,7 @@ docker create --name telegraf-better-ping-1 \
     -e INFLUX_BUCKET='<your bucket name>' \
     -e TELEGRAF_BETTER_PING_ARGS='<your telegraf-better-ping command line arguments>'
     m13253/telegraf-better-ping:latest
-docker start telegraf-better-ping-1
+$ docker start telegraf-better-ping-1
 ```
 Refer to the Section [Command line interface](#command-line-interface) to learn how to configure `TELEGRAF_BETTER_PING_ARGS`.
 
@@ -147,13 +147,13 @@ Edit the newly added Telegraf configuration, make the following modifications:
 ```
 
 ```bash
-docker pull m13253/telegraf-better-ping:latest
-docker create --name telegraf-better-ping-1 \
+$ docker pull m13253/telegraf-better-ping:latest
+$ docker create --name telegraf-better-ping-1 \
     --link influxdb-1:influxdb \
     -e INFLUX_TOKEN='<your API token>' \
     m13253/telegraf-better-ping:latest \
     --config 'http://telegraf:8086/api/v2/telegrafs/<my configuration URL>'
-docker start telegraf-better-ping-1
+$ docker start telegraf-better-ping-1
 ```
 
 ### 4. Setting up Grafana
@@ -167,13 +167,13 @@ Choose “Generate API Token” → “Custom API Token”. Use the following se
 Take note of your Grafana token.
 
 ```bash
-docker pull grafana/grafana:latest
-docker create --name grafana-1 \
+$ docker pull grafana/grafana:latest
+$ docker create --name grafana-1 \
     --link influxdb-1:influxdb \
     -p 127.0.0.1:3000:3000/tcp \
     -v /var/lib/docker-volumes/grafana:/var/lib/grafana \
     grafana/grafana:latest
-docker start grafana-1
+$ docker start grafana-1
 ```
 
 Go to `http://127.0.0.1:3000`, log in with username `admin` and password `admin`. Then change your password. You can also change your username in your profile settings.
