@@ -123,7 +123,7 @@ Choose “Create a Telegraf Configuration”. Use the following settings:
 * Bucket: `<your bucket name>`
 * Source: Execd
 
-Change the value `command` to:
+Make the following modification:
 ```toml
 [[inputs.execd]]
   command = [
@@ -136,6 +136,15 @@ Refer to the Section [Command line interface](#command-line-interface) to learn 
 Click “Save and Test”. Take notes of:
 * The API token
 * The configuration URL, but change `127.0.0.1` to `telegraf`
+
+Edit the newly added Telegraf configuration, make the following modifications:
+```toml
+[agent]
+  interval = "1s"
+  flush_interval = "1s"
+[[outputs.influxdb_v2]]
+  urls = ["http://telegraf:8086"]
+```
 
 ```bash
 docker pull m13253/telegraf-better-ping:latest
