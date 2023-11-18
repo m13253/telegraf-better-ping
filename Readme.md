@@ -230,7 +230,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 * Query:
   * Data source: InfluxDB
   * Query:
-    ```go:
+    ```go
     from(bucket: "<your bucket name>")
     |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
     |> filter(fn: (r) =>
