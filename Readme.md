@@ -235,6 +235,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 * Legend:
   * Visibility: off
 * Graph styles:
+  * Line interpolation: Step after
   * Fill opacity: 50
   * Gradient mode: Scheme
 * Standard options:
