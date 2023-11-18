@@ -66,14 +66,14 @@ ping,dest=2001:db8::2 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",i
 
 ## Running in Docker
 
-### Setting up database storage
+### 1. Setting up database storage
 
 First, create a directory outside Docker to store databases, so you will not lose it during future upgrades:
 ```bash
 mkdir -p /var/lib/docker-volumes/{grafana,influxdb}
 ```
 
-### Setting up InfluxDB
+### 2. Setting up InfluxDB
 
 ```bash
 docker pull influxdb:latest
@@ -90,9 +90,9 @@ Take notes of:
 * Your username and password
 * Your organization name and bucket name
 
-### Setting up Telegraf-better-ping
+### 3. Setting up Telegraf-better-ping
 
-Easy method: Passing configuration through environment variables.
+#### 3.a. Easy method: Passing configuration through environment variables.
 
 Log into `http://127.0.0.1:8086` again, choose “Load Data” → “API Tokens” from the left-side menu.
 
@@ -117,7 +117,7 @@ docker start telegraf-better-ping-1
 
 Refer to the Section [Command line interface](#command-line-interface) to learn how to configure `TELEGRAF_BETTER_PING_ARGS`.
 
-Alternative method: Use InfluxDB to distribute Telegraf configuration files.
+#### 3.b. Alternative method: Use InfluxDB to distribute Telegraf configuration files.
 
 Log into `http://127.0.0.1:8086`, choose “Load Data” → “Telegraf” from the left-side menu.
 
@@ -148,7 +148,7 @@ docker create --name telegraf-better-ping-1 \
 docker start telegraf-better-ping-1
 ```
 
-### Setting up Grafana
+### 4. Setting up Grafana
 
 Log into `http://127.0.0.1:8086` again, choose “Load Data” → “API Tokens” from the left-side menu.
 
@@ -181,7 +181,9 @@ Add a new data source using the following settings:
 * Token: `<your Grafana token>`
 * Min time interval: 1s
 
-Choose “Dashboards” from the left-side menu.
+### 5. Designing your Grafana dashboard
+
+Go to `http://127.0.0.1:3000`, choose “Dashboards” from the left-side menu.
 
 Choose the ⚙ icon in the top-right corner. Use the following settings:
 * Title: `Ping`
