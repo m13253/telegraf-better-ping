@@ -4,7 +4,7 @@ A better Ping monitoring plugin for Telegraf / InfluxDB
 
 ## Command line interface
 
-This program can be run independently without Telegraf. It will print out PING responses to standard output, in the [InfluxDB line protocol](https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/) format.
+This program can be run independently without Telegraf.
 
 ```
 Usage:
@@ -47,6 +47,15 @@ sudo ./telegraf-better-ping \
     --comment='Google WWW IPv6'     -6 www.google.com \
     --comment='Cloudflare WWW IPv4' -4 www.cloudflare.com \
     --comment='Cloudflare WWW IPv6' -6 www.cloudflare.com
+```
+
+It prints out PING responses to standard output, in the [InfluxDB line protocol](https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/) format.
+```
+# PING 2001:db8::2 with 56 bytes of data, will start in 0.500 seconds.
+ping,dest=::1 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=1u,hop_limit=64u,rtt=0.001000000 1700000000500000000
+ping,dest=::1 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=2u,hop_limit=64u,rtt=0.001000000 1700000001500000000
+ping,dest=::1 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=3u,hop_limit=64u,rtt=0.001000000 1700000002500000000
+ping,dest=::1 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",icmp_id=52428u,icmp_seq=4u,hop_limit=64u,rtt=0.001000000 1700000003500000000
 ```
 
 ## Running in Docker
