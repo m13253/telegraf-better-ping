@@ -10,7 +10,7 @@ ENV INFLUX_URL=http://localhost:8086 \
     INFLUX_TOKEN= \
     INFLUX_ORG=organization \
     INFLUX_BUCKET=bucket \
-    TELEGRAF_BETTER_PING_ARGS="127.0.0.1 ::1"
+    TELEGRAF_BETTER_PING_ARGS="localhost"
 COPY --from=builder /root/telegraf-better-ping/telegraf.conf /etc/telegraf/
 COPY --from=builder /root/telegraf-better-ping/telegraf-better-ping /usr/bin/
 RUN setcap cap_net_raw,cap_net_bind_service+ep /usr/bin/telegraf-better-ping
