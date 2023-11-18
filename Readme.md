@@ -193,7 +193,7 @@ Add a new data source using the following settings:
 
 Go to `http://127.0.0.1:3000`, choose “Dashboards” from the left-side menu.
 
-Choose the ⚙ icon in the top-right corner. Use the following settings:
+Choose the “⚙” icon in the top-right corner. Use the following settings:
 * Title: `Ping`
 * Refresh live dashboards: on
 
@@ -254,7 +254,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 
 Choose “Apply” in the top-right corner.
 
-Then, choose 💾 in the top-right corner. Save your dashboard.
+Then, choose “💾” icon in the top-right corner. Save your dashboard.
 
 ## Caveats
 
