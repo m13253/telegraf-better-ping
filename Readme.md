@@ -2,6 +2,10 @@
 
 A better Ping monitoring plugin for Telegraf / InfluxDB
 
+## Why the stock Ping plugin is not good enough?
+
+<https://github.com/influxdata/telegraf/issues/11145#issuecomment-1809246992>
+
 ## Command line interface
 
 This program can be run independently without Telegraf.
