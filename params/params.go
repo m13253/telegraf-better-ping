@@ -143,7 +143,7 @@ Options:
   -6                    Use IPv6 / ICMPv6 protocol.
   -I SOURCE             The source address to send packets from.
   -i INTERVAL           Wait INTERVAL seconds between sending each packet.
-						Must be greater or equal to 0.002 seconds.
+                        Must be greater or equal to 0.002 seconds.
   -s SIZE               The number of data bytes to be sent. The default is 56.
                         Must be between 40 and 65528.
 
