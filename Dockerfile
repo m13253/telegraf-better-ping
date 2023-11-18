@@ -18,7 +18,7 @@ ENV INFLUX_URL=http://localhost:8086 \
     INFLUX_ORG=organization \
     INFLUX_BUCKET=bucket \
     TELEGRAF_BETTER_PING_ARGS="localhost"
-ADD docker/entrypoint-better-ping.sh /
+COPY docker/entrypoint-better-ping.sh /
 COPY --from=builder /root/telegraf-better-ping/telegraf.conf /etc/telegraf/
 COPY --from=builder /root/telegraf-better-ping/telegraf-better-ping /usr/bin/
-ENTRYPOINT [ "/entrypoint-better-ping.sh" ]
+ENTRYPOINT ["/entrypoint-better-ping.sh"]
