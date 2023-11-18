@@ -146,6 +146,7 @@ Edit the newly added Telegraf configuration, make the following modifications:
 [agent]
   interval = "1s"
   flush_interval = "1s"
+  precision = "1ns"
 [[outputs.influxdb_v2]]
   urls = ["http://telegraf:8086"]
 ```
