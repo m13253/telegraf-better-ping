@@ -260,9 +260,9 @@ Then, choose “💾” icon in the top-right corner. Save your dashboard.
 
 ### DNS Caching
 
-Telegraf-better-ping does not cache DNS responses. That is to say, if one of your PING destinations is specified using hostname instead of IP address, Telegraf-better-ping may send one DNS request per interval, if your operating system does not provide DNS caching.
+Telegraf-better-ping does not cache DNS responses. Therefore, the provided Docker container image has [Dnsmasq](https://dnsmasq.org) preinstalled, to provide DNS caching for Telegraf-better-ping.
 
-The provided Docker container image has [Dnsmasq](https://dnsmasq.org) preinstalled, in order to provide DNS caching for Telegraf-better-ping.
+If you run Telegraf-better-ping without the provided Docker container image, you need to make sure DNS caching is working properly to prevent Telegraf-better-ping from sending out too one DNS request per interval.
 
 ### IPv6 connectivity
 
