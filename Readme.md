@@ -113,7 +113,6 @@ docker create --name telegraf-better-ping-1 \
     m13253/telegraf-better-ping:latest
 docker start telegraf-better-ping-1
 ```
-
 Refer to the Section [Command line interface](#command-line-interface) to learn how to configure `TELEGRAF_BETTER_PING_ARGS`.
 
 #### 3.b. Alternative method: Use InfluxDB to distribute Telegraf configuration files.
@@ -132,6 +131,7 @@ Change the value `command` to:
     "<my", "telegraf-better-ping", "command", "line", "arguments", "but", "splitted>",
   ]
 ```
+Refer to the Section [Command line interface](#command-line-interface) to learn how to configure the command line arguments.
 
 Click “Save and Test”. Take notes of:
 * The API token
