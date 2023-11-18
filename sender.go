@@ -41,12 +41,12 @@ func startSender(state *AppState, dest *DestinationState, wg *sync.WaitGroup) {
 	fmt.Printf("# PING %s with %d bytes of data, will start in %.3f seconds.\n", strings.ReplaceAll(dest.Params.Destination, "\n", "\n# "), dest.Params.Size, delay.Seconds())
 	time.Sleep(delay)
 	var (
-		crypt cipher.AEAD
 		seq   uint16
+		crypt cipher.AEAD
 	)
+
 	ticker := time.NewTicker(dest.Params.Interval)
 	defer ticker.Stop()
-
 out:
 	for ; ; <-ticker.C {
 		addrs, err := net.LookupHost(dest.Params.Destination)
