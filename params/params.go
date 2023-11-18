@@ -19,6 +19,7 @@ type DestinationParams struct {
 	Comment     string
 	Source      string
 	Destination string
+	HostTag     string
 	Interval    time.Duration
 	Protocol    string
 	Size        uint16
@@ -41,12 +42,13 @@ func ParseParams(args []string) PingParams {
 	}
 
 	needValue := map[string]struct{}{
-		"":          {},
-		"--comment": {},
-		"--dest":    {},
-		"-I":        {},
-		"-i":        {},
-		"-s":        {},
+		"":           {},
+		"--comment":  {},
+		"--dest":     {},
+		"--host-tag": {},
+		"-I":         {},
+		"-i":         {},
+		"-s":         {},
 	}
 	var arg0 string
 	for i, arg := range parseCommandLine(args, needValue) {
@@ -76,6 +78,9 @@ func ParseParams(args []string) PingParams {
 			nextDest.Comment = arg.Value
 		case "--help":
 			printHelp(arg0)
+		case "--host-tag":
+			waitNextDest = true
+			nextDest.HostTag = arg.Value
 		case "-4":
 			waitNextDest = true
 			nextDest.Protocol = "ip4"
@@ -87,7 +92,7 @@ func ParseParams(args []string) PingParams {
 			nextDest.Source = arg.Value
 		case "-i":
 			waitNextDest = true
-			if interval, err := strconv.ParseFloat(arg.Value, 64); err == nil && interval > 0 {
+			if interval, err := strconv.ParseFloat(arg.Value, 64); err == nil && interval >= 0.002 {
 				nextDest.Interval = time.Duration(math.Ceil(interval * float64(time.Second)))
 			} else {
 				printShortHelp(arg0, fmt.Sprintf("invalid interval for option -i: %q", arg.Value))
@@ -115,7 +120,7 @@ func ParseParams(args []string) PingParams {
 
 func printShortHelp(arg0 string, message string) {
 	fmt.Fprintf(os.Stderr, `Usage:
-  %s {[OPTIONS] [--dest] DESTINATION} [[OPTIONS] [--dest] DESTINATION]...
+  %s [--host-tag TAG] {[OPTIONS] [--dest] DESTINATION} [[OPTIONS] [--dest] DESTINATION]...
 
 Error: %s
 Use "%s --help" for detailed information.
@@ -125,19 +130,20 @@ Use "%s --help" for detailed information.
 
 func printHelp(arg0 string) {
 	fmt.Printf(`Usage:
-  %s {[OPTIONS] [--dest] DESTINATION} [[OPTIONS] [--dest] DESTINATION]...
+  %s [--host-tag TAG] {[OPTIONS] [--dest] DESTINATION} [[OPTIONS] [--dest] DESTINATION]...
 
 Options:
   --comment=COMMENT     Comment of the following destination.
   [--dest=]DESTINATION  The destination address to send packets to.
                         The text "--dest=" can be omitted.
+  --host-tag TAG        Add an extra "host" tag to the InfluxDB entries.
   --prefer-ipv6         Prefer IPv6 / ICMPv6 protocol,
                         fallback to IPv4 / ICMP. The default mode.
   -4                    Use IPv4 / ICMP protocol.
   -6                    Use IPv6 / ICMPv6 protocol.
   -I SOURCE             The source address to send packets from.
   -i INTERVAL           Wait INTERVAL seconds between sending each packet.
-                        Real number is allowed with dot as a decimal separator.
+						Must be greater or equal to 0.002 seconds.
   -s SIZE               The number of data bytes to be sent. The default is 56.
                         Must be between 40 and 65528.
 

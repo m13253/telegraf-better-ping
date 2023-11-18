@@ -21,6 +21,7 @@ type ICMPResponse struct {
 	Destination string
 	HasHopLimit bool
 	HopLimit    uint8
+	HostTag     string
 	ID          uint16
 	RecvTime    time.Time
 	ReplyFrom   net.Addr
@@ -35,12 +36,18 @@ func startReceivers(state *AppState) {
 	if err != nil {
 		log.Fatalf("failed to listen on ICMP protocol: %v\n", err)
 	}
+	ipv4PacketConn := ipv4Conn.IPv4PacketConn()
+	ipv4PacketConn.SetControlMessage(ipv4.FlagTTL, true)
+	ipv4PacketConn.SetControlMessage(ipv4.FlagDst, true)
 	ipv6Conn, err := icmp.ListenPacket("ip6:58", "")
 	if err != nil {
 		log.Fatalf("failed to listen on ICMPv6 protocol: %v\n", err)
 	}
-	go startIPv4Receiver(state, ipv4Conn.IPv4PacketConn())
-	go startIPv6Receiver(state, ipv6Conn.IPv6PacketConn())
+	ipv6PacketConn := ipv6Conn.IPv6PacketConn()
+	ipv6PacketConn.SetControlMessage(ipv6.FlagHopLimit, true)
+	ipv6PacketConn.SetControlMessage(ipv6.FlagDst, true)
+	go startIPv4Receiver(state, ipv4PacketConn)
+	go startIPv6Receiver(state, ipv6PacketConn)
 }
 
 func printResponse(state *AppState, resp *ICMPResponse) {
@@ -50,7 +57,11 @@ func printResponse(state *AppState, resp *ICMPResponse) {
 		rttFrac = -rttFrac
 	}
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("ping,dest=%s", influxDB_escape.EscapeKey(resp.Destination)))
+	sb.WriteString("ping,")
+	if len(resp.HostTag) != 0 {
+		sb.WriteString(fmt.Sprintf("host=%s,", influxDB_escape.EscapeKey(resp.HostTag)))
+	}
+	sb.WriteString(fmt.Sprintf("dest=%s", influxDB_escape.EscapeKey(resp.Destination)))
 	if len(resp.Comment) != 0 {
 		sb.WriteString(fmt.Sprintf(",comment=%s", influxDB_escape.EscapeKey(resp.Comment)))
 	}
@@ -98,6 +109,7 @@ func processResponse(state *AppState, size int, src, dst net.Addr, recvTime time
 					Destination: dest.Params.Destination,
 					HasHopLimit: hasHopLimit,
 					HopLimit:    hopLimit,
+					HostTag:     dest.Params.HostTag,
 					ID:          uint16(body.ID),
 					RecvTime:    recvTime,
 					ReplyFrom:   src,
