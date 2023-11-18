@@ -93,11 +93,15 @@ Take notes of:
 * Your username and password
 * Your organization name and bucket name
 
+Log into `http://127.0.0.1:8086`, choose “Load Data” → “Bucket” from the left-side menu.
+
+Choose “Settings” next to your bucket, select a retention period as your wish. Any data older than the specified period will be deleted.
+
 ### 3. Setting up Telegraf-better-ping
 
 #### 3.a. Easy method: Passing configuration through environment variables.
 
-Log into `http://127.0.0.1:8086` again, choose “Load Data” → “API Tokens” from the left-side menu.
+Log into `http://127.0.0.1:8086`, choose “Load Data” → “API Tokens” from the left-side menu.
 
 Choose “Generate API Token” → “Custom API Token”. Use the following settings:
 * Description: `Telegraf-better-ping`
