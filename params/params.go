@@ -130,7 +130,7 @@ Use "%s --help" for detailed information.
 
 func printHelp(arg0 string) {
 	fmt.Printf(`Usage:
-  %s {[OPTIONS] [--dest] DESTINATION} [[OPTIONS] [--dest] DESTINATION]...
+  %s {[OPTIONS] [--dest=]DESTINATION} [[OPTIONS] [--dest=]DESTINATION]...
 
 Options:
   --comment=COMMENT     Comment of the following destination.
