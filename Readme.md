@@ -36,7 +36,7 @@ Notes:
 
 For example:
 ```bash
-sudo ./telegraf-better-ping \
+$ sudo ./telegraf-better-ping \
     --comment='Cloudflare DNS IPv4 (main)'   1.1.1.1 \
     --comment='Cloudflare DNS IPv4 (backup)' 1.0.0.1 \
     --comment='Cloudflare DNS IPv6 (main)'   2606:4700:4700::1111 \
