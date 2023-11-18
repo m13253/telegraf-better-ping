@@ -98,7 +98,7 @@ Log into `http://127.0.0.1:8086` again, choose “Load Data” → “API Tokens
 
 Choose “Generate API Token” → “Custom API Token”. Use the following settings:
 * Description: `Telegraf-better-ping`
-* Buckets → All Buckets: Read/Write
+* Buckets → `<your bucket name>`: Write
 
 Take note of your Telegraf-better-ping token.
 
@@ -154,7 +154,7 @@ Log into `http://127.0.0.1:8086` again, choose “Load Data” → “API Tokens
 
 Choose “Generate API Token” → “Custom API Token”. Use the following settings:
 * Description: `Grafana`
-* Buckets → All Buckets: Read
+* Buckets → `<your bucket name>`: Read
 
 Take note of your Grafana token.
 
