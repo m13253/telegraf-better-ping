@@ -273,8 +273,9 @@ from(bucket: "<your bucket name>")
     |> elapsed(unit: 1ns)
     |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r.elapsed)}))
     |> drop(columns: ["elapsed"])
+    |> movingAverage(n: 10)
     |> group(columns: ["host", "target"])
-    |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
+    |> aggregateWindow(every: v.windowPeriod, fn: min, createEmpty: false)
 ```
 * Panel options:
   * Title: `Receiving rate: ${target}`
