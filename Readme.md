@@ -263,20 +263,26 @@ Select refresh rate to “Auto” in the top-right corner.
 
 Then, choose “💾” icon in the top-right corner. Save your dashboard.
 
-Similarly, here is a query of packet receiving rate:
-```go
-from(bucket: "<your bucket name>")
-    |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
-    |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
-    |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
-    |> filter(fn: (r) => r.target == "${target}")
-    |> elapsed(unit: 1ns)
-    |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r.elapsed)}))
-    |> drop(columns: ["elapsed"])
-    |> movingAverage(n: 10)
-    |> group(columns: ["host", "dest", "comment", "target"])
-    |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
-```
+Similarly, add another dashboard titled `Receiving rate`.
+
+Use the following settings:
+* Query:
+  * Data source: InfluxDB
+  * Query:
+    ```go
+    from(bucket: "<your bucket name>")
+        |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
+        |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
+        |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
+        |> filter(fn: (r) => r.target == "${target}")
+        |> elapsed(unit: 1ns)
+        |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r.elapsed)}))
+        |> drop(columns: ["elapsed"])
+        |> movingAverage(n: 10)
+        |> group(columns: ["host", "dest", "comment", "target"])
+        |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
+    ```
+    (**Note:** Alternatively, you can use `expectedReceivingRate - receivingRate` to calculate the packet loss rate.)
 * Panel options:
   * Title: `Receiving rate: ${target}`
   * Repeat options:
