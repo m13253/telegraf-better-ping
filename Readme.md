@@ -235,7 +235,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
     ```go
     from(bucket: "<your bucket name>")
         |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
-        |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
+        |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or r.dest == "${name}"))
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> filter(fn: (r) => r.name == "${name}")
         |> group(columns: ["host", "dest", "comment", "name"])
@@ -276,7 +276,7 @@ Similarly, add a new visualization titled `Receiving rate` to a new dashboard. U
     ```go
     from(bucket: "<your bucket name>")
         |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
-        |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
+        |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or r.dest == "${name}"))
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> filter(fn: (r) => r.name == "${name}")
         |> elapsed(unit: 1ns)
