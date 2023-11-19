@@ -213,7 +213,7 @@ Choose “Variables”, add a new variable. Use the following settings:
 * Data source: InfluxDB
 * Query:
   ```go
-  from(bucket: "ping")
+  from(bucket: "<your bucket name>")
       |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
       |> filter(fn: (r) => r._measurement == "ping")
       |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
