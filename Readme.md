@@ -301,7 +301,7 @@ Similarly, add a new visualization titled `Receiving rate` in a new dashboard. U
   * Display name: `${__field.labels.target}`
   * Color scheme: Red-Yellow-Green (by value)
 
-(**Note:** Alternatively, you can use `1.0 / sendingInterval - receivingRate` to calculate the packet loss rate. The sending interval can be controlled using the command line option `-i`.)
+(**Note:** Alternatively, you can use `1.0 / sendingInterval - receivingRate` to calculate the packet loss rate. The sending interval can be controlled using the command line option `-i`. Your measured loss rate may fluctuate above and below 0 due to jitter.)
 
 ## Caveats
 
