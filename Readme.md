@@ -208,26 +208,20 @@ Choose the “⚙” icon in the top-right corner. Use the following settings:
 * Refresh live dashboards: on
 
 Choose “Variables”, add a new variable. Use the following settings:
-* Name: dest
+* Name: `target`
 * Show on dashboard: Nothing
 * Data source: InfluxDB
 * Query:
   ```go
-  import "influxdata/influxdb/schema"
-
-  schema.tagValues(
-      bucket: "<your bucket name>",
-      tag: "dest",
-      predicate: (r) =>
-          r._measurement == "ping",
-      start: v.timeRangeStart,
-      stop: v.timeRangeStop
-  )
+  from(bucket: "ping")
+      |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
+      |> filter(fn: (r) => r._measurement == "ping")
+      |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
+      |> keep(columns: ["target"])
+      |> unique(column: "target")
   ```
 * Multi-value: yes
 * Include All option: yes
-
-(**Note:** Alternatively, you may want to use `"comment"` instead of `"dest"` to distinguish PING destinations.)
 
 Choose “Run query”, make sure it shows all your PING destinations. Then, choose “Apply”.
 
@@ -239,19 +233,18 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
   * Query:
     ```go
     from(bucket: "<your bucket name>")
-    |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
-    |> filter(fn: (r) =>
-        r._measurement == "ping" and
-        r._field == "rtt" and
-        r.dest == "${dest}"
-    )
-    |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
+        |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
+        |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
+        |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
+        |> group(columns: ["host", "target"])
+        |> filter(fn: (r) => r.target == "${target}")
+        |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
     ```
     (**Note:** Alternatively, you may want to use `"avg"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
 * Panel options:
-  * Title: `Ping: ${dest}`
+  * Title: `Ping: ${target}`
   * Repeat options:
-    * Repeat by variable: `dest`
+    * Repeat by variable: `target`
     * Max per row: 4
 * Legend:
   * Visibility: off
@@ -262,6 +255,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 * Standard options:
   * Unit: `seconds (s)`
   * Min: 0
+  * Display name: `${__field.labels.target}`
   * Color scheme: Green-Yellow-Red (by value)
 
 Choose “Apply” in the top-right corner.
