@@ -254,7 +254,6 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 * Standard options:
   * Unit: `seconds (s)`
   * Min: 0
-  * Decimals: 3
   * Display name: `${__field.labels.target}`
   * Color scheme: Green-Yellow-Red (by value)
 
@@ -264,44 +263,34 @@ Select refresh rate to “Auto” in the top-right corner.
 
 Then, choose “💾” icon in the top-right corner. Save your dashboard.
 
-Similarly, here is a query of an approximation of the packet loss:
+Similarly, here is a query of packet receiving rate:
 ```go
-pingInterval = 1s
-lossPeriod = 5s
 from(bucket: "<your bucket name>")
     |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
     |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
     |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
     |> filter(fn: (r) => r.target == "${target}")
-    |> aggregateWindow(every: pingInterval, period: lossPeriod,
-        fn: (column, tables=<-) => tables
-            |> count()
-            |> map(fn: (r) => {
-                loss = 1.0 - float(v: r._value + 1) * float(v: int(v: pingInterval)) / float(v: int(v: r._stop) - int(v: r._start))
-                return {r with _value: if loss < 0.0 then 0.0 else if loss > 1.0 then 1.0 else loss}
-            }),
-        column: "_value")
+    |> elapsed(unit: 1ns)
+    |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r.elapsed)}))
+    |> drop(columns: ["elapsed"])
     |> group(columns: ["host", "target"])
-    |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
+    |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
 ```
 * Panel options:
-  * Title: `Ping: ${target}`
+  * Title: `Packet rate: ${target}`
   * Repeat options:
     * Repeat by variable: `target`
     * Max per row: 4
 * Legend:
   * Visibility: off
 * Graph styles:
-  * Line interpolation: Step before
-  * Fill opacity: 50
   * Gradient mode: Scheme
 * Standard options:
-  * Unit: `Percent (0.0-1.0)`
-  * Min: 0
-  * Max: 1
-  * Decimals: 3
+  * Unit: `packets/sec`
+  * Min: 0.91
+  * Max: 1.01
   * Display name: `${__field.labels.target}`
-  * Color scheme: Green-Yellow-Red (by value)
+  * Color scheme: Red-Yellow-Green (by value)
 
 ## Caveats
 
