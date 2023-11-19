@@ -201,6 +201,8 @@ Add a new data source using the following settings:
 
 ### 5. Designing your Grafana dashboard
 
+#### 5.1. Round-trip-time
+
 Go to `http://127.0.0.1:3000`, choose “Dashboards” from the left-side menu.
 
 Choose the “⚙” icon in the top-right corner. Use the following settings:
@@ -263,9 +265,9 @@ Select refresh rate to “Auto” in the top-right corner.
 
 Then, choose “💾” icon in the top-right corner. Save your dashboard.
 
-Similarly, add another dashboard titled `Receiving rate`.
+### 6.2. Receiving rate / loss rate
 
-Use the following settings:
+Similarly, add a new visualization titled `Receiving rate` in a new dashboard. Use the following settings:
 * Query:
   * Data source: InfluxDB
   * Query:
@@ -282,7 +284,7 @@ Use the following settings:
         |> group(columns: ["host", "dest", "comment", "target"])
         |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
     ```
-    (**Note:** Alternatively, you can use `expectedReceivingRate - receivingRate` to calculate the packet loss rate.)
+
 * Panel options:
   * Title: `Receiving rate: ${target}`
   * Repeat options:
@@ -298,6 +300,8 @@ Use the following settings:
   * Max: 1.01
   * Display name: `${__field.labels.target}`
   * Color scheme: Red-Yellow-Green (by value)
+
+(**Note:** Alternatively, you can use `1.0 / sendingInterval - receivingRate` to calculate the packet loss rate. The sending interval can be controlled using the command line option `-i`.)
 
 ## Caveats
 
