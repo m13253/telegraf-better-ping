@@ -278,6 +278,23 @@ from(bucket: "<your bucket name>")
     |> group(columns: ["host", "target"])
     |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
 ```
+* Panel options:
+  * Title: `Ping: ${target}`
+  * Repeat options:
+    * Repeat by variable: `target`
+    * Max per row: 4
+* Legend:
+  * Visibility: off
+* Graph styles:
+  * Line interpolation: Step before
+  * Fill opacity: 50
+  * Gradient mode: Scheme
+* Standard options:
+  * Unit: `Percent (0.0-1.0)`
+  * Min: 0
+  * Max: 1
+  * Display name: `${__field.labels.target}`
+  * Color scheme: Green-Yellow-Red (by value)
 
 ## Caveats
 
