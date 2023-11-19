@@ -236,7 +236,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
         |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
         |> filter(fn: (r) => r.target == "${target}")
-        |> group(columns: ["host", "target"])
+        |> group(columns: ["host", "dest", "comment", "target"])
         |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
     ```
     (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
@@ -274,7 +274,7 @@ from(bucket: "<your bucket name>")
     |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r.elapsed)}))
     |> drop(columns: ["elapsed"])
     |> movingAverage(n: 10)
-    |> group(columns: ["host", "target"])
+    |> group(columns: ["host", "dest", "comment", "target"])
     |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
 ```
 * Panel options:
