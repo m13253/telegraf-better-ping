@@ -231,11 +231,21 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
   * Data source: InfluxDB
   * Query:
     ```go
-    from(bucket: "<your bucket name>")
+    pingInterval = 1s
+    lossPeriod = 5s
+    from(bucket: "ping")
         |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
         |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
         |> filter(fn: (r) => r.target == "${target}")
+        |> aggregateWindow(every: pingInterval, period: lossPeriod,
+            fn: (column, tables=<-) => tables
+                |> count()
+                |> map(fn: (r) => {
+                    loss = 1.0 - float(v: r._value + 1) * float(v: int(v: pingInterval)) / float(v: int(v: r._stop) - int(v: r._start))
+                    return {r with _value: if loss < 0.0 then 0.0 else if loss > 1.0 then 1.0 else loss}
+                }),
+            column: "_value")
         |> group(columns: ["host", "target"])
         |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
     ```
