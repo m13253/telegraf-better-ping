@@ -210,7 +210,7 @@ Choose the “⚙” icon in the top-right corner. Use the following settings:
 * Refresh live dashboards: on
 
 Choose “Variables”, add a new variable. Use the following settings:
-* Name: `target`
+* Name: `name`
 * Show on dashboard: Nothing
 * Data source: InfluxDB
 * Query:
@@ -236,16 +236,16 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
     from(bucket: "<your bucket name>")
         |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
-        |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
-        |> filter(fn: (r) => r.target == "${target}")
-        |> group(columns: ["host", "dest", "comment", "target"])
+        |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
+        |> filter(fn: (r) => r.name == "${name}")
+        |> group(columns: ["host", "dest", "comment", "name"])
         |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
     ```
     (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
 * Panel options:
-  * Title: `Ping: ${target}`
+  * Title: `Ping: ${name}`
   * Repeat options:
-    * Repeat by variable: `target`
+    * Repeat by variable: `name`
     * Max per row: 4
 * Tooltip
   * Values sort order: Descending
@@ -258,7 +258,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 * Standard options:
   * Unit: `seconds (s)`
   * Min: 0
-  * Display name: `${__field.labels.target}`
+  * Display name: `${__field.labels.name}`
   * Color scheme: Green-Yellow-Red (by value)
 
 Choose “Apply” in the top-right corner.
@@ -277,20 +277,20 @@ Similarly, add a new visualization titled `Receiving rate` to a new dashboard. U
     from(bucket: "<your bucket name>")
         |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
-        |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
-        |> filter(fn: (r) => r.target == "${target}")
+        |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
+        |> filter(fn: (r) => r.name == "${name}")
         |> elapsed(unit: 1ns)
         |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r.elapsed)}))
         |> drop(columns: ["elapsed"])
         |> movingAverage(n: 10)
-        |> group(columns: ["host", "dest", "comment", "target"])
+        |> group(columns: ["host", "dest", "comment", "name"])
         |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
     ```
 
 * Panel options:
-  * Title: `Receiving rate: ${target}`
+  * Title: `Receiving rate: ${name}`
   * Repeat options:
-    * Repeat by variable: `target`
+    * Repeat by variable: `name`
     * Max per row: 4
 * Tooltip
   * Values sort order: Descending
@@ -302,7 +302,7 @@ Similarly, add a new visualization titled `Receiving rate` to a new dashboard. U
   * Unit: `packets/sec`
   * Min: 0.9
   * Max: 1.01
-  * Display name: `${__field.labels.target}`
+  * Display name: `${__field.labels.name}`
   * Color scheme: Red-Yellow-Green (by value)
 
 (**Note:** Alternatively, you can use `1.0 / sendingInterval - receivingRate` to calculate the packet loss rate. The sending interval can be controlled using the command line option `-i`. Your measured loss rate may fluctuate above and below 0 due to jitter.)
