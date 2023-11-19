@@ -277,7 +277,7 @@ from(bucket: "<your bucket name>")
     |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
 ```
 * Panel options:
-  * Title: `Packet rate: ${target}`
+  * Title: `Receiving rate: ${target}`
   * Repeat options:
     * Repeat by variable: `target`
     * Max per row: 4
@@ -287,7 +287,7 @@ from(bucket: "<your bucket name>")
   * Gradient mode: Scheme
 * Standard options:
   * Unit: `packets/sec`
-  * Min: 0.91
+  * Min: 0.9
   * Max: 1.01
   * Display name: `${__field.labels.target}`
   * Color scheme: Red-Yellow-Green (by value)
