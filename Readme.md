@@ -254,6 +254,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 * Standard options:
   * Unit: `seconds (s)`
   * Min: 0
+  * Decimals: 3
   * Display name: `${__field.labels.target}`
   * Color scheme: Green-Yellow-Red (by value)
 
@@ -293,7 +294,7 @@ from(bucket: "<your bucket name>")
   * Unit: `Percent (0.0-1.0)`
   * Min: 0
   * Max: 1
-  * Decimals: 2
+  * Decimals: 3
   * Display name: `${__field.labels.target}`
   * Color scheme: Green-Yellow-Red (by value)
 
