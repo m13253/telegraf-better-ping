@@ -247,6 +247,8 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
   * Repeat options:
     * Repeat by variable: `target`
     * Max per row: 4
+* Tooltip
+  * Values sort order: Descending
 * Legend:
   * Visibility: off
 * Graph styles:
@@ -290,6 +292,8 @@ Similarly, add a new visualization titled `Receiving rate` to a new dashboard. U
   * Repeat options:
     * Repeat by variable: `target`
     * Max per row: 4
+* Tooltip
+  * Values sort order: Descending
 * Legend:
   * Visibility: off
 * Graph styles:
