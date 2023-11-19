@@ -213,11 +213,13 @@ Choose “Variables”, add a new variable. Use the following settings:
 * Data source: InfluxDB
 * Query:
   ```go
-  import "influxdata/influxdb/v1"
-  v1.tagValues(
+  import "influxdata/influxdb/schema"
+
+  schema.tagValues(
       bucket: "<your bucket name>",
       tag: "dest",
-      predicate: (r) => r._measurement == "ping",
+      predicate: (r) =>
+          r._measurement == "ping",
       start: v.timeRangeStart,
       stop: v.timeRangeStop
   )
@@ -239,9 +241,9 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
     from(bucket: "<your bucket name>")
     |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
     |> filter(fn: (r) =>
-      r._measurement == "ping" and
-      r._field == "rtt" and
-      r.dest == "${dest}"
+        r._measurement == "ping" and
+        r._field == "rtt" and
+        r.dest == "${dest}"
     )
     |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
     ```
