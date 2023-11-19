@@ -239,7 +239,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
         |> group(columns: ["host", "target"])
         |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
     ```
-    (**Note:** Alternatively, you may want to use `"avg"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
+    (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
 * Panel options:
   * Title: `Ping: ${target}`
   * Repeat options:
@@ -262,6 +262,22 @@ Choose “Apply” in the top-right corner.
 Select refresh rate to “Auto” in the top-right corner.
 
 Then, choose “💾” icon in the top-right corner. Save your dashboard.
+
+Similarly, here is a query of an approximation of the packet loss:
+```go
+ping_interval = 1.0
+from(bucket: "<your bucket name>")
+    |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
+    |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq")
+    |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
+    |> filter(fn: (r) => r.target == "${target}")
+    |> derivative(unit: 1s, nonNegative: false)
+    |> movingAverage(n: 5)
+    |> map(fn: (r) => ({r with _value: 1.0 - ping_interval / r._value}))
+    |> map(fn: (r) => ({r with _value: if r._value < 0.0 then 0.0 else if r._value > 1.0 then 1.0 else r._value}))
+    |> group(columns: ["host", "target"])
+    |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
+```
 
 ## Caveats
 
