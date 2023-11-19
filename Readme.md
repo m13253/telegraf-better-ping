@@ -216,9 +216,8 @@ Choose “Variables”, add a new variable. Use the following settings:
   from(bucket: "<your bucket name>")
       |> range(start: v.timeRangeStart, stop:v.timeRangeStop)
       |> filter(fn: (r) => r._measurement == "ping")
-      |> map(fn: (r) => ({r with target: if exists r.comment then r.comment else r.dest}))
-      |> keep(columns: ["target"])
-      |> unique(column: "target")
+      |> map(fn: (r) => ({_value: if exists r.comment then r.comment else r.dest}))
+      |> unique()
   ```
 * Multi-value: yes
 * Include All option: yes
