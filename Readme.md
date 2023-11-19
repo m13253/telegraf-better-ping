@@ -275,7 +275,7 @@ from(bucket: "<your bucket name>")
     |> drop(columns: ["elapsed"])
     |> movingAverage(n: 10)
     |> group(columns: ["host", "target"])
-    |> aggregateWindow(every: v.windowPeriod, fn: min, createEmpty: false)
+    |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
 ```
 * Panel options:
   * Title: `Receiving rate: ${target}`
