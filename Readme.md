@@ -267,7 +267,7 @@ Select refresh rate to “Auto” in the top-right corner.
 
 Then, choose “💾” icon in the top-right corner. Save your dashboard.
 
-### 6.2. Receiving rate / loss rate
+#### 5.2. Receiving rate / loss rate
 
 Similarly, add a new visualization titled `Receiving rate` to a new dashboard. Use the following settings:
 * Query:
