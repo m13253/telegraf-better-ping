@@ -48,6 +48,10 @@ $ ./telegraf-better-ping \
     --comment='Google DNS IPv4 (backup)'     8.8.4.4 \
     --comment='Google DNS IPv6 (main)'       2001:4860:4860::8888 \
     --comment='Google DNS IPv6 (backup)'     2001:4860:4860::8844 \
+    --comment='Akamai WWW IPv4'           -4 www.akamai.com \
+    --comment='Akamai WWW IPv6'           -6 www.akamai.com \
+    --comment='Amazon WWW IPv4'           -4 www.amazon.com \
+    --comment='Amazon WWW IPv6'           -6 www.amazon.com \
     --comment='Cloudflare WWW IPv4'       -4 www.cloudflare.com \
     --comment='Cloudflare WWW IPv6'       -6 www.cloudflare.com \
     --comment='Google WWW IPv4'           -4 www.google.com \
