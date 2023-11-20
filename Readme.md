@@ -320,7 +320,7 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
         |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value}))
     ```
 
-    **Note 1:** Out-of-order responses may produce a pair of positive and negative spike. A wider smooth period can flatten the spikes out.
+    **Note 1:** Out-of-order responses may produce a pair of positive and negative spikes. A wider smooth period can flatten the spikes out.
 
     **Note 2:** Restarting Telegram-better-ping will produce a huge spike on the graph. Please wait for the smooth period to pass, so the graph can settle down.
 
