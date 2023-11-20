@@ -27,17 +27,16 @@ func (rng *CSPRNG) Read(buf []byte) (n int, err error) {
 		buf[i] = 0
 	}
 	rng.mtx.Lock()
-out:
 	for len(buf) != 0 {
 		if rng.remaining == 0 {
 			var init [chacha20.KeySize + chacha20.NonceSize]byte
 			_, err = rand.Read(init[:])
 			if err != nil {
-				break out
+				break
 			}
 			rng.cipher, err = chacha20.NewUnauthenticatedCipher(init[:chacha20.KeySize], init[chacha20.KeySize:])
 			if err != nil {
-				break out
+				break
 			}
 			rng.remaining = chacha20BlockSize * chacha20RekeyCount
 		}

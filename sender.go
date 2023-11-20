@@ -49,11 +49,6 @@ func (app *appState) startSender(dest *destinationState, wg *sync.WaitGroup) {
 	defer ticker.Stop()
 out:
 	for ; ; <-ticker.C {
-		addrs, err := net.LookupHost(dest.Params.Destination)
-		if err != nil {
-			log.Printf("failed to lookup %s: %v\n", dest.Params.Destination, err)
-			continue
-		}
 		if seq == 0 {
 			if crypt != nil {
 				dest.Crypt[1].Store(crypt)
@@ -68,6 +63,11 @@ out:
 		// https://go.dev/ref/spec#Integer_overflow
 		seq++
 
+		addrs, err := net.LookupHost(dest.Params.Destination)
+		if err != nil {
+			log.Printf("failed to lookup %s: %v\n", dest.Params.Destination, err)
+			continue
+		}
 		var firstErr error
 		for _, addr := range addrs {
 			ipv4Packet, ipv6Packet := app.prepareRequestBody(dest, seq, crypt)
