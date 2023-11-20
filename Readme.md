@@ -75,7 +75,7 @@ ping,dest=2001:db8::2 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",i
 
 First, create a directory outside Docker to store databases, so you will not lose it during future upgrades:
 ```bash
-$ mkdir -p /var/lib/docker-volumes/{grafana,influxdb}
+$ sudo mkdir -p /var/lib/docker-volumes/{grafana,influxdb}
 $ sudo chown 472:0 /var/lib/docker-volumes/grafana
 $ sudo chown 1000:1000 /var/lib/docker-volumes/influxdb
 ```
