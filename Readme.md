@@ -274,22 +274,19 @@ Similarly, add a new visualization titled `Packet rate` to a new dashboard. Use 
   * Data source: InfluxDB
   * Query:
     ```go
+    data = from(bucket: "<your bucket name>")
+        |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+        |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or r.dest == "${name}"))
+        |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
+        |> filter(fn: (r) => r.name == "${name}")
     union(tables: [
-        from(bucket: "<your bucket name>")
-            |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
-            |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or r.dest == "${name}"))
-            |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
-            |> filter(fn: (r) => r.name == "${name}")
+        data
             |> derivative(unit: 1s)
             |> set(key: "direction", value: "send"),
-        from(bucket: "<your bucket name>")
-            |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
-            |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or r.dest == "${name}"))
-            |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
-            |> filter(fn: (r) => r.name == "${name}")
-            |> elapsed(unit: 1ns)
-            |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r.elapsed), direction: "recv"}))
-            |> drop(columns: ["elapsed"])
+        data
+            |> drop(columns: ["_value"])
+            |> elapsed(unit: 1ns, columnName: "_value")
+            |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r._value), direction: "recv"}))
     ])
         |> group(columns: ["host", "dest", "comment", "name", "direction"])
         |> movingAverage(n: 10)
