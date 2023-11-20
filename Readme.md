@@ -303,7 +303,7 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
 * Standard options:
   * Unit: `Percent (0.0-1.0)`
   * Min: 0
-  * Max: 1
+  * Max: 0.1
   * Display name: `${__field.labels.name}`
   * Color scheme: Green-Yellow-Red (by value)
 
