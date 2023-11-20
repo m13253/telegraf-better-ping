@@ -79,9 +79,9 @@ ping,dest=2001:db8::2 size=64u,reply_from="2001:db8::2",reply_to="2001:db8::1",i
 
 First, create a directory outside Docker to store databases, so you will not lose it during future upgrades:
 ```bash
-$ sudo mkdir -p /var/lib/docker-volumes/{grafana,influxdb}
-$ sudo chown 472:0 /var/lib/docker-volumes/grafana
-$ sudo chown 1000:1000 /var/lib/docker-volumes/influxdb
+$ sudo mkdir -p /var/lib/docker-volumes/{grafana,influxdb}/data
+$ sudo chown 472:0 /var/lib/docker-volumes/grafana/data
+$ sudo chown 1000:1000 /var/lib/docker-volumes/influxdb/data
 ```
 
 ### 2. Setting up InfluxDB
@@ -90,7 +90,7 @@ $ sudo chown 1000:1000 /var/lib/docker-volumes/influxdb
 $ docker pull influxdb:latest
 $ docker create --name influxdb-1 \
     -p 127.0.0.1:8086:8086/tcp \
-    -v /var/lib/docker-volumes/influxdb:/var/lib/influxdb2 \
+    -v /var/lib/docker-volumes/influxdb/data:/var/lib/influxdb2 \
     influxdb:latest
 $ docker start influxdb-1
 ```
@@ -197,7 +197,7 @@ $ docker pull grafana/grafana:latest
 $ docker create --name grafana-1 \
     --link influxdb-1:influxdb \
     -p 127.0.0.1:3000:3000/tcp \
-    -v /var/lib/docker-volumes/grafana:/var/lib/grafana \
+    -v /var/lib/docker-volumes/grafana/data:/var/lib/grafana \
     grafana/grafana:latest
 $ docker start grafana-1
 ```
