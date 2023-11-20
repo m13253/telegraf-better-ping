@@ -201,12 +201,12 @@ Add a new data source using the following settings:
 
 ### 5. Designing your Grafana dashboard
 
-#### 5.1. Round-trip-time
+#### 5.1. Round-trip time (RTT)
 
 Go to `http://127.0.0.1:3000`, choose “Dashboards” from the left-side menu.
 
 Choose the “⚙” icon in the top-right corner. Use the following settings:
-* Title: `Ping`
+* Title: `Round-trip time`
 * Refresh live dashboards: on
 
 Choose “Variables”, add a new variable. Use the following settings:
@@ -243,7 +243,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
     ```
     (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
 * Panel options:
-  * Title: `Ping: ${name}`
+  * Title: `RTT: ${name}`
   * Repeat options:
     * Repeat by variable: `name`
     * Max per row: 4
@@ -267,33 +267,39 @@ Select refresh rate to “Auto” in the top-right corner.
 
 Then, choose “💾” icon in the top-right corner. Save your dashboard.
 
-#### 5.2. Receiving rate / loss rate
+#### 5.2. Packet rate
 
-Similarly, add a new visualization titled `Receiving rate` to a new dashboard. Use the following settings:
+Similarly, add a new visualization titled `Packet rate` to a new dashboard. Use the following settings:
 * Query:
   * Data source: InfluxDB
   * Query:
     ```go
-    from(bucket: "<your bucket name>")
-        |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
-        |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or r.dest == "${name}"))
-        |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
-        |> filter(fn: (r) => r.name == "${name}")
-        |> elapsed(unit: 1ns)
-        |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r.elapsed)}))
-        |> drop(columns: ["elapsed"])
-        |> movingAverage(n: 10)
-        |> group(columns: ["host", "dest", "comment", "name"])
+    union(tables: [
+        from(bucket: "<your bucket name>")
+            |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+            |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or r.dest == "${name}"))
+            |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
+            |> filter(fn: (r) => r.name == "${name}")
+            |> derivative(unit: 1s)
+            |> set(key: "direction", value: "send"),
+        from(bucket: "<your bucket name>")
+            |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+            |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or r.dest == "${name}"))
+            |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
+            |> filter(fn: (r) => r.name == "${name}")
+            |> elapsed(unit: 1ns)
+            |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r.elapsed), direction: "recv"}))
+            |> drop(columns: ["elapsed"])
+            |> movingAverage(n: 10)
+    ])
+        |> group(columns: ["host", "dest", "comment", "name", "direction"])
         |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
     ```
-
 * Panel options:
-  * Title: `Receiving rate: ${name}`
+  * Title: `Packet rate: ${name}`
   * Repeat options:
     * Repeat by variable: `name`
     * Max per row: 4
-* Tooltip
-  * Values sort order: Descending
 * Legend:
   * Visibility: off
 * Graph styles:
@@ -302,10 +308,10 @@ Similarly, add a new visualization titled `Receiving rate` to a new dashboard. U
   * Unit: `packets/sec`
   * Min: 0.9
   * Max: 1.01
-  * Display name: `${__field.labels.name}`
+  * Display name: `${__field.labels.name} (${__field.labels.direction})`
   * Color scheme: Red-Yellow-Green (by value)
 
-(**Note:** Alternatively, you can use `1.0 / sendingInterval - receivingRate` to calculate the packet loss rate. The sending interval can be controlled using the command line option `-i`. Your measured loss rate may fluctuate above and below 0 due to jitter.)
+The packet loss rate is calculated using `sendRate - recvRate`. Your measured loss rate may fluctuate above and below 0 due to jitter.
 
 ## Caveats
 
