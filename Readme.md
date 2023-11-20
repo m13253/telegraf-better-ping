@@ -213,7 +213,7 @@ Add a new data source using the following settings:
 * Basic auth: off
 * Organization: `<your organization name>`
 * Token: `<your Grafana token>`
-* Min time interval: 1s
+* Min time interval: 1ms
 
 ### 5. Designing your Grafana dashboard
 
