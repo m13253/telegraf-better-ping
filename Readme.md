@@ -317,7 +317,12 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
         |> timedMovingAverage(every: v.windowPeriod, period: if int(v: v.windowPeriod) < int(v: smoothPeriod) then smoothPeriod else v.windowPeriod)
         |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value}))
     ```
-    (**Note:** Out-of-order responses may produce a pair of positive and negative spike. They average out to flat with a wider window period.)
+
+    **Note 1:** Out-of-order responses may produce a pair of positive and negative spike. A wider smooth period can flatten the spikes out.
+
+    **Note 2:** Restarting Telegram-better-ping will produce a spike on the graph. You will need to wait smooth period to pass, so the graph can settle down.
+
+    **Note 3:** If your ping destination is multicast, you might need to modify the loss rate formula.
 * Panel options:
   * Title: `Loss: ${name}`
   * Repeat options:
