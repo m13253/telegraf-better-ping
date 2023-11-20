@@ -205,7 +205,7 @@ Add a new data source using the following settings:
 
 #### 5.1. Round-trip time (RTT)
 
-Go to `http://127.0.0.1:3000`, choose “Dashboards” from the left-side menu.
+Go to `http://127.0.0.1:3000`, choose “Dashboards” from the left-side menu. Choose “Create Dashboard”.
 
 Choose the “⚙” icon in the top-right corner. Use the following settings:
 * Title: `Ping`
