@@ -206,7 +206,7 @@ Add a new data source using the following settings:
 Go to `http://127.0.0.1:3000`, choose “Dashboards” from the left-side menu.
 
 Choose the “⚙” icon in the top-right corner. Use the following settings:
-* Title: `Round-trip time`
+* Title: `Ping`
 * Refresh live dashboards: on
 
 Choose “Variables”, add a new variable. Use the following settings:
@@ -243,7 +243,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
     ```
     (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
 * Panel options:
-  * Title: `RTT: ${name}`
+  * Title: `Ping: ${name}`
   * Repeat options:
     * Repeat by variable: `name`
     * Max per row: 4
@@ -252,7 +252,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 * Legend:
   * Visibility: off
 * Graph styles:
-  * Line interpolation: Step after
+  * Line interpolation: Step before
   * Fill opacity: 50
   * Gradient mode: Scheme
 * Standard options:
@@ -267,49 +267,45 @@ Select refresh rate to “Auto” in the top-right corner.
 
 Then, choose “💾” icon in the top-right corner. Save your dashboard.
 
-#### 5.2. Packet rate
+#### 5.2. Packet loss rate
 
-Similarly, add a new visualization titled `Packet rate` to a new dashboard. Use the following settings:
+Similarly, add a new visualization titled `Loss` to a new dashboard. Use the following settings:
 * Query:
   * Data source: InfluxDB
   * Query:
     ```go
-    data = from(bucket: "<your bucket name>")
+    from(bucket: "<your bucket name>")
         |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or r.dest == "${name}"))
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> filter(fn: (r) => r.name == "${name}")
-    union(tables: [
-        data
-            |> derivative(unit: 1s)
-            |> set(key: "direction", value: "send")
-            |> group(columns: ["host", "dest", "comment", "name", "direction"]),
-        data
-            |> drop(columns: ["_value"])
-            |> elapsed(unit: 1ns, columnName: "_value")
-            |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r._value), direction: "recv"}))
-            |> group(columns: ["host", "dest", "comment", "name", "direction"])
-    ])
-        |> movingAverage(n: 10)
+        |> group(columns: ["host", "dest", "comment", "name"])
+        |> toInt()
+        |> difference()
+        |> map(fn: (r) => ({r with _value: float(v: (r._value + 32768) % 65536 - 32768)}))
         |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
+        |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value}))
     ```
+    (**Note:** Out-of-order responses may produce a pair of positive and negative spike. They average out to flat with a wider window period.)
 * Panel options:
-  * Title: `Packet rate: ${name}`
+  * Title: `Loss: ${name}`
   * Repeat options:
     * Repeat by variable: `name`
     * Max per row: 4
+* Tooltip
+  * Values sort order: Descending
 * Legend:
   * Visibility: off
 * Graph styles:
+  * Line interpolation: Step before
+  * Fill opacity: 50
   * Gradient mode: Scheme
 * Standard options:
-  * Unit: `packets/sec`
-  * Min: 0.9
-  * Max: 1.01
-  * Display name: `${__field.labels.name} (${__field.labels.direction})`
-  * Color scheme: Red-Yellow-Green (by value)
-
-The packet loss rate is calculated using `sendRate - recvRate`. Your measured loss rate may fluctuate above and below 0 due to jitter.
+  * Unit: `Percent (0.0-1.0)`
+  * Min: 0
+  * Max: 1
+  * Display name: `${__field.labels.name}`
+  * Color scheme: Green-Yellow-Red (by value)
 
 ## Caveats
 
