@@ -282,13 +282,14 @@ Similarly, add a new visualization titled `Packet rate` to a new dashboard. Use 
     union(tables: [
         data
             |> derivative(unit: 1s)
-            |> set(key: "direction", value: "send"),
+            |> set(key: "direction", value: "send")
+            |> group(columns: ["host", "dest", "comment", "name", "direction"]),
         data
             |> drop(columns: ["_value"])
             |> elapsed(unit: 1ns, columnName: "_value")
             |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r._value), direction: "recv"}))
+            |> group(columns: ["host", "dest", "comment", "name", "direction"])
     ])
-        |> group(columns: ["host", "dest", "comment", "name", "direction"])
         |> movingAverage(n: 10)
         |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
     ```
