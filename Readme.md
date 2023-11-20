@@ -316,11 +316,11 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or r.dest == "${name}"))
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> filter(fn: (r) => r.name == "${name}")
-        |> group(columns: ["host", "dest", "comment", "name"])
         |> difference()
         |> map(fn: (r) => ({r with _value: float(v: (r._value + 98304) % 65536 - 32768)}))
         |> timedMovingAverage(every: v.windowPeriod, period: if int(v: v.windowPeriod) < int(v: smoothPeriod) then smoothPeriod else v.windowPeriod)
         |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value}))
+        |> group(columns: ["host", "dest", "comment", "name"])
     ```
 
     **Note 1:** Out-of-order responses may produce a pair of positive and negative spikes. A wider smooth period can flatten the spikes out.
