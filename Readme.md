@@ -258,6 +258,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 * Standard options:
   * Unit: `seconds (s)`
   * Min: 0
+  * Decimals: 1
   * Display name: `${__field.labels.name}`
   * Color scheme: Green-Yellow-Red (by value)
 
@@ -304,6 +305,7 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
   * Unit: `Percent (0.0-1.0)`
   * Min: 0
   * Max: 0.1
+  * Decimals: 1
   * Display name: `${__field.labels.name}`
   * Color scheme: Green-Yellow-Red (by value)
 
