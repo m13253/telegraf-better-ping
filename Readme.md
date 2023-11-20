@@ -256,8 +256,8 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or r.dest == "${name}"))
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> filter(fn: (r) => r.name == "${name}")
-        |> group(columns: ["host", "dest", "comment", "name"])
         |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
+        |> group(columns: ["host", "dest", "comment", "name"])
     ```
     (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
 * Panel options:
