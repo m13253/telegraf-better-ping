@@ -221,7 +221,8 @@ Choose the “⚙” icon in the top-right corner. Use the following settings:
 
 Choose “Variables”, add a new variable. Use the following settings:
 * Name: `name`
-* Show on dashboard: Nothing
+* Label: `Destination / Comment`
+* Show on dashboard: Label and value
 * Data source: InfluxDB
 * Query:
   ```go
@@ -257,7 +258,8 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
   * Repeat options:
     * Repeat by variable: `name`
     * Max per row: 4
-* Tooltip
+* Tooltip:
+  * Tooltip mode: All
   * Values sort order: Descending
 * Legend:
   * Visibility: off
@@ -274,7 +276,9 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 
 Choose “Apply” in the top-right corner.
 
-Select refresh rate to “Auto” in the top-right corner.
+Set time range to “Last 15 minutes” and refresh rate to “Auto” in the top-right corner.
+
+Change the current selected “Destination / Comment” value to “All” in the top-left corner.
 
 Then, choose “💾” icon in the top-right corner. Save your dashboard.
 
@@ -307,7 +311,8 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
   * Repeat options:
     * Repeat by variable: `name`
     * Max per row: 4
-* Tooltip
+* Tooltip:
+  * Tooltip mode: All
   * Values sort order: Descending
 * Legend:
   * Visibility: off
