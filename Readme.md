@@ -292,6 +292,8 @@ Save your dashboard. If asked, set the following options:
 * Save current time range as dashboard default: yes
 * Save current variable values as dashboard default: yes
 
+Sometimes your modifications are not reflected to all repeated visualization panels. If that happens, reload your web page.
+
 #### 5.2. Packet loss rate
 
 Similarly, add a new visualization titled `Loss` to a new dashboard. Use the following settings:
