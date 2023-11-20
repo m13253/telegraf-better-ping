@@ -280,7 +280,11 @@ Set time range to “Last 15 minutes” and refresh rate to “Auto” in the to
 
 Change the current selected “Destination / Comment” value to “All” in the top-left corner.
 
-Then, choose “💾” icon in the top-right corner. Save your dashboard.
+Then, choose “💾” icon in the top-right corner. If asked, check the following options:
+* Save current time range as dashboard default: yes
+* Save current variable values as dashboard default: yes
+
+Save your dashboard.
 
 #### 5.2. Packet loss rate
 
@@ -317,7 +321,7 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
 * Legend:
   * Visibility: off
 * Graph styles:
-  * Line interpolation: Step before
+  * Line interpolation: Smooth
   * Fill opacity: 50
   * Gradient mode: Scheme
 * Standard options:
