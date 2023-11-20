@@ -96,6 +96,8 @@ Take notes of:
 * Your username and password
 * Your organization name and bucket name
 
+(**Warning:** The “Copy to Clipboard” button may be broken. Please copy the token manually!)
+
 Log into `http://127.0.0.1:8086`, choose “Load Data” → “Bucket” from the left-side menu.
 
 Choose “Settings” next to your bucket, select a retention period as your wish. Any data older than the specified period will be deleted.
@@ -111,6 +113,8 @@ Choose “Generate API Token” → “Custom API Token”. Use the following se
 * Buckets → `<your bucket name>`: Write
 
 Take note of your Telegraf-better-ping token.
+
+(**Warning:** The “Copy to Clipboard” button may be broken. Please copy the token manually!)
 
 ```bash
 $ docker pull m13253/telegraf-better-ping:latest
@@ -148,6 +152,8 @@ Click “Save and Test”. Take notes of:
 * The API token
 * The configuration URL, but change `127.0.0.1` to `telegraf`
 
+(**Warning:** The “Copy to Clipboard” button may be broken. Please copy the token manually!)
+
 Edit the newly added Telegraf configuration, make the following modifications:
 ```toml
 [agent]
@@ -177,6 +183,8 @@ Choose “Generate API Token” → “Custom API Token”. Use the following se
 * Buckets → `<your bucket name>`: Read
 
 Take note of your Grafana token.
+
+(**Warning:** The “Copy to Clipboard” button may be broken. Please copy the token manually!)
 
 ```bash
 $ docker pull grafana/grafana:latest
