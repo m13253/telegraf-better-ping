@@ -218,6 +218,7 @@ Go to `http://127.0.0.1:3000`, choose “Dashboards” from the left-side menu. 
 Choose the “⚙” icon in the top-right corner. Use the following settings:
 * Title: `Ping`
 * Refresh live dashboards: on
+* Graph tooltip: Shared crosshair
 
 Choose “Variables”, add a new variable. Use the following settings:
 * Name: `name`
@@ -280,11 +281,16 @@ Set time range to “Last 15 minutes” and refresh rate to “Auto” in the to
 
 Change the current selected “Destination / Comment” value to “All” in the top-left corner.
 
-Then, choose “💾” icon in the top-right corner. If asked, check the following options:
+Then, go back to dashboard settings. Change the following settings:
+* Editable: Read-only
+* Variables → `name`:
+  * Show on dashboard: Nothing
+
+Then, choose “💾” icon or “Save dashboard” button in the top-right corner.
+
+Save your dashboard. If asked, set the following options:
 * Save current time range as dashboard default: yes
 * Save current variable values as dashboard default: yes
-
-Save your dashboard.
 
 #### 5.2. Packet loss rate
 
