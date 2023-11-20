@@ -288,9 +288,8 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
         |> toInt()
         |> difference()
         |> map(fn: (r) => ({r with _value: float(v: (r._value + 32768) % 65536 - 32768)}))
-        |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
+        |> timedMovingAverage(every: v.windowPeriod, period: if int(v: v.windowPeriod) < int(v: smoothPeriod) then smoothPeriod else v.windowPeriod)
         |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value}))
-        |> timedMovingAverage(every: v.windowPeriod, period: smoothPeriod)
     ```
     (**Note:** Out-of-order responses may produce a pair of positive and negative spike. They average out to flat with a wider window period.)
 * Panel options:
