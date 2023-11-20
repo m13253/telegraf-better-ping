@@ -317,7 +317,6 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> filter(fn: (r) => r.name == "${name}")
         |> group(columns: ["host", "dest", "comment", "name"])
-        |> toInt()
         |> difference()
         |> map(fn: (r) => ({r with _value: float(v: (r._value + 98304) % 65536 - 32768)}))
         |> timedMovingAverage(every: v.windowPeriod, period: if int(v: v.windowPeriod) < int(v: smoothPeriod) then smoothPeriod else v.windowPeriod)
