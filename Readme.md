@@ -275,8 +275,12 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
   * Data source: InfluxDB
   * Query:
     ```go
+    import "date"
+
+    smoothPeriod = 1000s
+
     from(bucket: "<your bucket name>")
-        |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+        |> range(start: date.sub(from: v.timeRangeStart, d: smoothPeriod), stop: v.timeRangeStop)
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or r.dest == "${name}"))
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> filter(fn: (r) => r.name == "${name}")
@@ -286,6 +290,7 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
         |> map(fn: (r) => ({r with _value: float(v: (r._value + 32768) % 65536 - 32768)}))
         |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
         |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value}))
+        |> timedMovingAverage(every: v.windowPeriod, period: smoothPeriod)
     ```
     (**Note:** Out-of-order responses may produce a pair of positive and negative spike. They average out to flat with a wider window period.)
 * Panel options:
