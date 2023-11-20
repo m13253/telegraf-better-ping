@@ -290,9 +290,9 @@ Similarly, add a new visualization titled `Packet rate` to a new dashboard. Use 
             |> elapsed(unit: 1ns)
             |> map(fn: (r) => ({r with _value: 1000000000.0 / float(v: r.elapsed), direction: "recv"}))
             |> drop(columns: ["elapsed"])
-            |> movingAverage(n: 10)
     ])
         |> group(columns: ["host", "dest", "comment", "name", "direction"])
+        |> movingAverage(n: 10)
         |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
     ```
 * Panel options:
