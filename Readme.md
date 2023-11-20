@@ -322,7 +322,7 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
 
     **Note 1:** Out-of-order responses may produce a pair of positive and negative spike. A wider smooth period can flatten the spikes out.
 
-    **Note 2:** Restarting Telegram-better-ping will produce a spike on the graph. You will need to wait smooth period to pass, so the graph can settle down.
+    **Note 2:** Restarting Telegram-better-ping will produce a huge spike on the graph. Please wait for the smooth period to pass, so the graph can settle down.
 
     **Note 3:** If your ping destination is multicast, you might need to modify the loss rate formula.
 * Panel options:
