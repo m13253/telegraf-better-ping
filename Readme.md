@@ -256,8 +256,8 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or r.dest == "${name}"))
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> filter(fn: (r) => r.name == "${name}")
-        |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
         |> group(columns: ["host", "dest", "comment", "name"])
+        |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
     ```
     (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
 * Panel options:
@@ -318,9 +318,9 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
         |> filter(fn: (r) => r.name == "${name}")
         |> difference()
         |> map(fn: (r) => ({r with _value: float(v: (r._value + 98304) % 65536 - 32768)}))
+        |> group(columns: ["host", "dest", "comment", "name"])
         |> timedMovingAverage(every: v.windowPeriod, period: if int(v: v.windowPeriod) < int(v: smoothPeriod) then smoothPeriod else v.windowPeriod)
         |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value}))
-        |> group(columns: ["host", "dest", "comment", "name"])
     ```
 
     **Note 1:** Out-of-order responses may produce a pair of positive and negative spikes. A wider smooth period can flatten the spikes out.
