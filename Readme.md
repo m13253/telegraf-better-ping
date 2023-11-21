@@ -226,38 +226,60 @@ Choose the “⚙” icon in the top-right corner. Use the following settings:
 * Refresh live dashboards: on
 * Graph tooltip: Shared crosshair
 
-Choose “Variables”, add 3 new variables. Use the following settings:
-* Select variable type: Interval
-* Name: `aggregationInterval`
-* Label: `Aggregation Interval`
-* Values: `Minimum,1s,5s,15s,30s,1m,5m,15m,30m,1h,3h,6h,12h,1d`
+Choose “Variables”, add 4 new variables. Use the following settings:
+* Variable 1:
+  * Select variable type: Interval
+  * Name: `aggregationInterval`
+  * Label: `Aggregation Interval`
+  * Values: `Minimum,1s,5s,15s,30s,1m,5m,15m,30m,1h,3h,6h,12h,1d`
 
-Choose “Run query”, make sure it shows all intervals. Then, choose “Apply”.
+  Choose “Run query”, make sure it shows all intervals. Then, choose “Apply”.
 
-* Select variable type: Interval
-* Name: `aggregationPeriod`
-* Label: `Aggregation Period`
-* Values: `Minimum,1s,5s,15s,30s,1m,5m,15m,30m,1h,3h,6h,12h,1d,2d,7d,30d,90d`
+* Variable 2:
+  * Select variable type: Interval
+  * Name: `aggregationPeriod`
+  * Label: `Aggregation Period`
+  * Values: `Minimum,1s,5s,15s,30s,1m,5m,15m,30m,1h,3h,6h,12h,1d,2d,7d,30d,90d`
 
-Choose “Run query”, make sure it shows all periods. Then, choose “Apply”.
+  Choose “Run query”, make sure it shows all periods. Then, choose “Apply”.
 
-* Name: `name`
-* Label: `Destination / Comment`
-* Data source: InfluxDB
-* Query:
-  ```go
-  from(bucket: "<your bucket name>")
-      |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
-      |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
-      |> map(fn: (r) => ({_value: if exists r.comment then r.comment else r.dest}))
-      |> unique()
-  ```
-* Multi-value: yes
-* Include All option: yes
+* Variable 3:
+  * Name: `name`
+  * Label: `Destination / Comment`
+  * Data source: InfluxDB
+  * Query:
+    ```go
+    buckets()
+    ```
 
-Choose “Run query”, make sure it shows all your PING destinations. Then, choose “Apply”.
+  Choose “Run query”, make sure it shows your bucket name. Then, choose “Apply”.
+
+* Variable 4:
+  * Name: `name`
+  * Label: `Destination / Comment`
+  * Data source: InfluxDB
+  * Query:
+    ```go
+    from(bucket: "${bucket}")
+        |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+        |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
+        |> map(fn: (r) => ({_value: if exists r.comment then r.comment else r.dest}))
+        |> unique()
+    ```
+  * Multi-value: yes
+  * Include All option: yes
+
+  Choose “Run query”, make sure it shows all your PING destinations. Then, choose “Apply”.
 
 Choose “Close” in the top-right corner.
+
+Set time range to “Last 15 minutes” and refresh rate to “Auto” in the top-right corner.
+
+Change the current selected variable values in the top-left corner:
+* Aggregation Interval: Minimum
+* Aggregation Period: Minimum
+* Bucket: `<your bucket name>`
+* Destination / Comment: All
 
 Choose “Add” → “Visualization” in the top-right corner. Use the following settings:
 * Query:
@@ -277,7 +299,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
         else
             aggregationInterval
 
-    from(bucket: "<your bucket name>")
+    from(bucket: "${bucket}")
         |> range(start: date.sub(from: v.timeRangeStart, d: aggregationPeriod), stop: date.add(to: v.timeRangeStop, d: aggregationPeriod))
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
         |> aggregateWindow(every: aggregationInterval, period: aggregationPeriod, fn: max, createEmpty: false)
@@ -307,10 +329,6 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
   * Color scheme: Green-Yellow-Red (by value)
 
 Choose “Apply” in the top-right corner.
-
-Set time range to “Last 15 minutes” and refresh rate to “Auto” in the top-right corner.
-
-Change the current selected “Destination / Comment” value to “All” in the top-left corner.
 
 Then, go back to dashboard settings. Change the following settings:
 * Editable: Read-only
@@ -347,7 +365,7 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
         else
             aggregationInterval
 
-    from(bucket: "<your bucket name>")
+    from(bucket: "${bucket}")
         |> range(start: date.sub(from: v.timeRangeStart, d: aggregationPeriod), stop: date.add(to: v.timeRangeStop, d: aggregationPeriod))
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
         |> difference()
@@ -362,6 +380,7 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
     **Note 2:** Restarting Telegraf-better-ping will produce a huge spike on the graph. Please wait for the aggregation period to pass, so the graph can settle down.
 
     **Note 3:** If your ping destination is multicast, you might need to modify the loss rate formula.
+
 * Panel options:
   * Title: `Loss: ${name}`
   * Repeat options:
