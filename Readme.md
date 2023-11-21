@@ -424,7 +424,7 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
 * Legend:
   * Visibility: off
 * Graph styles:
-  * Line interpolation: Smooth
+  * Line interpolation: Step before
   * Fill opacity: 50
   * Gradient mode: Scheme
 * Standard options:
