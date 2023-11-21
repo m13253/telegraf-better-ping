@@ -266,7 +266,7 @@ Go back and add 2 more variables:
   * Label: `Bucket`
   * Data source: `${dataSource}`
   * Query:
-    ```go
+    ```julia
     buckets()
     ```
 
@@ -277,7 +277,7 @@ Go back and add 2 more variables:
   * Label: `Destination / Comment`
   * Data source: `${dataSource}`
   * Query:
-    ```go
+    ```julia
     from(bucket: "${bucket}")
         |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt")
@@ -302,7 +302,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 * Query:
   * Data source: `${dataSource}`
   * Query:
-    ```go
+    ```julia
     import "date"
 
     aggregationInterval =
@@ -378,7 +378,7 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
 * Query:
   * Data source: `${dataSource}`
   * Query:
-    ```go
+    ```julia
     import "date"
 
     aggregationInterval =
