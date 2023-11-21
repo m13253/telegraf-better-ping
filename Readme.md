@@ -58,7 +58,7 @@ $ ./telegraf-better-ping \
     --comment='Google WWW IPv6'           -6 www.google.com
 ```
 
-It prints out PING responses to standard output, in the [InfluxDB line protocol](https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/) format.
+It prints out Ping responses to standard output, in the [InfluxDB line protocol](https://docs.influxdata.com/influxdb/v2/reference/syntax/line-protocol/) format.
 ```
 # PING 192.168.0.2 with 56 bytes of data, will start in 0.250 seconds.
 # PING 2001:db8::2 with 56 bytes of data, will start in 0.750 seconds.
@@ -287,7 +287,7 @@ Go back and add 2 more variables:
   * Multi-value: yes
   * Include All option: yes
 
-  Choose “Run query”, make sure it shows all your PING destinations. Then, choose “Apply”.
+  Choose “Run query”, make sure it shows all your Ping destinations. Then, choose “Apply”.
 
 Choose “Close” in the top-right corner.
 
@@ -409,11 +409,13 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
         data
     ```
 
-    **Note 1:** Out-of-order responses may produce a pair of positive and negative spikes. A wider Moving Average Period can flatten the spikes out.
+    **Note 1:** The formula first calculates the total difference in ICMP sequence number within each aggregation window, reflecting the number of Pings sent. Then divide the number of measurements (in other words, the number of replies received) by the number of Pings sent, producing the packet delivery rate. Finally, subtract the packet delivery rate from 100%, and we get the packet loss rate. Additionally, the formula properly handles the ICMP sequence number rollover.
 
-    **Note 2:** However, restarting Telegraf-better-ping will produce a huge spike on the graph. Please wait for the Moving Average Period to pass, so the graph can settle down.
+    **Note 2:** Out-of-order deliveries may produce a pair of positive and negative spikes if these measurements are located in separate aggregation windows. However, a wider Moving Average Period can flatten the spikes out, and the overall mean is still accurate.
 
-    **Note 3:** If your ping destination is multicast, you might need to modify the loss rate formula.
+    **Note 3:** However, restarting Telegraf-better-ping will produce a huge spike on the graph. Please wait for the Moving Average Period to pass, so the graph can settle down.
+
+    **Note 4:** If your Ping destination is multicast, you might need to modify the loss rate formula.
 
 * Panel options:
   * Title: `Loss: ${name}`
