@@ -275,7 +275,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
             aggregationInterval
 
     from(bucket: "<your bucket name>")
-        |> range(start: date.sub(from: v.timeRangeStart, d: aggregationPeriod), stop: date.add(from: v.timeRangeStart, d: aggregationPeriod))
+        |> range(start: date.sub(from: v.timeRangeStart, d: aggregationPeriod), stop: date.add(to: v.timeRangeStop, d: aggregationPeriod))
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
         |> aggregateWindow(every: aggregationInterval, period: aggregationPeriod, fn: max, createEmpty: false)
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
@@ -283,7 +283,7 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
     ```
     (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
 * Panel options:
-  * Title: `Ping: ${name}`
+  * Title: `RTT: ${name}`
   * Repeat options:
     * Repeat by variable: `name`
     * Max per row: 4
@@ -343,7 +343,7 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
             aggregationInterval
 
     from(bucket: "<your bucket name>")
-        |> range(start: date.sub(from: v.timeRangeStart, d: aggregationPeriod), stop: date.add(from: v.timeRangeStart, d: aggregationPeriod))
+        |> range(start: date.sub(from: v.timeRangeStart, d: aggregationPeriod), stop: date.add(to: v.timeRangeStop, d: aggregationPeriod))
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
         |> difference()
         |> map(fn: (r) => ({r with _value: float(v: (r._value + 98304) % 65536 - 32768)}))
