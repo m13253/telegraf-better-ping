@@ -244,8 +244,8 @@ Choose “Variables”, add 4 new variables. Use the following settings:
   Choose “Run query”, make sure it shows all periods. Then, choose “Apply”.
 
 * Variable 3:
-  * Name: `name`
-  * Label: `Destination / Comment`
+  * Name: `bucket`
+  * Label: `Bucket`
   * Data source: InfluxDB
   * Query:
     ```go
