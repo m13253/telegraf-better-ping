@@ -331,9 +331,12 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 Choose “Apply” in the top-right corner.
 
 Then, go back to dashboard settings. Change the following settings:
-* Editable: Read-only
+* Variables → `bucket`:
+  * Show on dashboard: Nothing
 * Variables → `name`:
   * Show on dashboard: Nothing
+* General
+  * Editable: Read-only
 
 Then, choose “💾” icon or “Save dashboard” button in the top-right corner.
 
