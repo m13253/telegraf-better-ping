@@ -409,7 +409,7 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
         data
     ```
 
-    **Note 1:** The formula first calculates the total difference in ICMP sequence number within each aggregation window, reflecting the number of Pings sent. Then, divide the number of measurements in the window (in other words, the number of replies received) by the number of Pings sent, producing the packet delivery rate. Finally, subtract the packet delivery rate from 100%, and we get the packet loss rate. Additionally, the formula properly handles the ICMP sequence number rollover by splitting the difference calculation into small steps.
+    **Note 1:** The formula first calculates the total difference in ICMP sequence number within each aggregation window, reflecting the number of Pings sent. Then, divide the number of measurements in the window (in other words, the number of replies received) by the number of Pings sent, producing the packet delivery rate. Finally, subtract the packet delivery rate from 100%, and we get the packet loss rate. Additionally, the code above properly handles the ICMP sequence number rollover by splitting the difference calculation into small steps.
 
     **Note 2:** Out-of-order deliveries may produce a pair of positive and negative spikes if these measurements are located in separate aggregation windows. However, a wider Moving Average Period can flatten the spikes out, and the overall mean is still accurate.
 
