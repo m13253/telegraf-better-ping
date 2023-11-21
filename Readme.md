@@ -253,11 +253,10 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
     ```go
     from(bucket: "<your bucket name>")
         |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
-        |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or r.dest == "${name}"))
-        |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
-        |> filter(fn: (r) => r.name == "${name}")
-        |> group(columns: ["host", "dest", "comment", "name"])
+        |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
         |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
+        |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
+        |> group(columns: ["_time", "_value"], mode: "except")
     ```
     (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
 * Panel options:
@@ -313,14 +312,12 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
 
     from(bucket: "<your bucket name>")
         |> range(start: date.sub(from: v.timeRangeStart, d: smoothPeriod), stop: v.timeRangeStop)
-        |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or r.dest == "${name}"))
-        |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
-        |> filter(fn: (r) => r.name == "${name}")
+        |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
         |> difference()
         |> map(fn: (r) => ({r with _value: float(v: (r._value + 98304) % 65536 - 32768)}))
-        |> group(columns: ["host", "dest", "comment", "name"])
-        |> timedMovingAverage(every: v.windowPeriod, period: if int(v: v.windowPeriod) < int(v: smoothPeriod) then smoothPeriod else v.windowPeriod)
-        |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value}))
+        |> aggregateWindow(every: v.windowPeriod, period: if int(v: v.windowPeriod) < int(v: smoothPeriod) then smoothPeriod else v.windowPeriod, fn: mean, createEmpty: false)
+        |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value, name: if exists r.comment then r.comment else r.dest}))
+        |> group(columns: ["_time", "_value"], mode: "except")
     ```
 
     **Note 1:** Out-of-order responses may produce a pair of positive and negative spikes. A wider smooth period can flatten the spikes out.
