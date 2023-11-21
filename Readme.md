@@ -226,10 +226,21 @@ Choose the “⚙” icon in the top-right corner. Use the following settings:
 * Refresh live dashboards: on
 * Graph tooltip: Shared crosshair
 
-Choose “Variables”, add a new variable. Use the following settings:
+Choose “Variables”, add 3 new variables. Use the following settings:
+* Select variable type: Interval
+* Name: `aggregationInterval`
+* Label: `Aggregation Interval`
+* Values: `Minimum,1s,1m,1h,3h,6h,12h,1d`
+Choose “Run query”, make sure it shows all intervals. Then, choose “Apply”.
+
+* Select variable type: Interval
+* Name: `aggregationPeriod`
+* Label: `Aggregation Period`
+* Values: `Minimum,1s,1m,1h,3h,6h,12h,1d,2d,7d,30d,90d`
+Choose “Run query”, make sure it shows all periods. Then, choose “Apply”.
+
 * Name: `name`
 * Label: `Destination / Comment`
-* Show on dashboard: Label and value
 * Data source: InfluxDB
 * Query:
   ```go
@@ -241,7 +252,6 @@ Choose “Variables”, add a new variable. Use the following settings:
   ```
 * Multi-value: yes
 * Include All option: yes
-
 Choose “Run query”, make sure it shows all your PING destinations. Then, choose “Apply”.
 
 Choose “Close” in the top-right corner.
@@ -251,10 +261,23 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
   * Data source: InfluxDB
   * Query:
     ```go
+    import "date"
+
+    aggregationInterval =
+        if "${aggregationInterval}" != "Minimum" and int(v: duration(v: "${aggregationInterval}")) > int(v: v.windowPeriod) then
+            duration(v: "${aggregationInterval}")
+        else
+            v.windowPeriod
+    aggregationPeriod =
+        if "${aggregationPeriod}" != "Minimum" and int(v: duration(v: "${aggregationPeriod}")) > int(v: aggregationInterval) then
+            duration(v: "${aggregationPeriod}")
+        else
+            aggregationInterval
+
     from(bucket: "<your bucket name>")
-        |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+        |> range(start: date.sub(from: v.timeRangeStart, d: aggregationPeriod), stop: date.add(from: v.timeRangeStart, d: aggregationPeriod))
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
-        |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)
+        |> aggregateWindow(every: aggregationInterval, period: aggregationPeriod, fn: max, createEmpty: false)
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> group(columns: ["_time", "_value"], mode: "except")
     ```
@@ -308,21 +331,30 @@ Similarly, add a new visualization titled `Loss` to a new dashboard. Use the fol
     ```go
     import "date"
 
-    smoothPeriod = 1000s
+    aggregationInterval =
+        if "${aggregationInterval}" != "Minimum" and int(v: duration(v: "${aggregationInterval}")) > int(v: v.windowPeriod) then
+            duration(v: "${aggregationInterval}")
+        else
+            v.windowPeriod
+    aggregationPeriod =
+        if "${aggregationPeriod}" != "Minimum" and int(v: duration(v: "${aggregationPeriod}")) > int(v: aggregationInterval) then
+            duration(v: "${aggregationPeriod}")
+        else
+            aggregationInterval
 
     from(bucket: "<your bucket name>")
-        |> range(start: date.sub(from: v.timeRangeStart, d: smoothPeriod), stop: v.timeRangeStop)
+        |> range(start: date.sub(from: v.timeRangeStart, d: aggregationPeriod), stop: date.add(from: v.timeRangeStart, d: aggregationPeriod))
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
         |> difference()
         |> map(fn: (r) => ({r with _value: float(v: (r._value + 98304) % 65536 - 32768)}))
-        |> aggregateWindow(every: v.windowPeriod, period: if int(v: v.windowPeriod) < int(v: smoothPeriod) then smoothPeriod else v.windowPeriod, fn: mean, createEmpty: false)
+        |> aggregateWindow(every: aggregationInterval, period: aggregationPeriod, fn: mean, createEmpty: false)
         |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value, name: if exists r.comment then r.comment else r.dest}))
         |> group(columns: ["_time", "_value"], mode: "except")
     ```
 
-    **Note 1:** Out-of-order responses may produce a pair of positive and negative spikes. A wider smooth period can flatten the spikes out.
+    **Note 1:** Out-of-order responses may produce a pair of positive and negative spikes. A wider aggregation period can flatten the spikes out.
 
-    **Note 2:** Restarting Telegram-better-ping will produce a huge spike on the graph. Please wait for the 1,000-second smooth period to pass, so the graph can settle down.
+    **Note 2:** Restarting Telegraf-better-ping will produce a huge spike on the graph. Please wait for the aggregation period to pass, so the graph can settle down.
 
     **Note 3:** If your ping destination is multicast, you might need to modify the loss rate formula.
 * Panel options:
