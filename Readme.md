@@ -230,14 +230,14 @@ Choose “Variables”, add 3 new variables. Use the following settings:
 * Select variable type: Interval
 * Name: `aggregationInterval`
 * Label: `Aggregation Interval`
-* Values: `Minimum,1s,1m,1h,3h,6h,12h,1d`
+* Values: `Minimum,1s,5s,15s,30s,1m,5m,15m,30m,1h,3h,6h,12h,1d`
 
 Choose “Run query”, make sure it shows all intervals. Then, choose “Apply”.
 
 * Select variable type: Interval
 * Name: `aggregationPeriod`
 * Label: `Aggregation Period`
-* Values: `Minimum,1s,1m,1h,3h,6h,12h,1d,2d,7d,30d,90d`
+* Values: `Minimum,1s,5s,15s,30s,1m,5m,15m,30m,1h,3h,6h,12h,1d,2d,7d,30d,90d`
 
 Choose “Run query”, make sure it shows all periods. Then, choose “Apply”.
 
