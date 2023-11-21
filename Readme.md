@@ -222,7 +222,7 @@ Add a new data source using the following settings:
 Go to `http://127.0.0.1:3000`, choose “Dashboards” from the left-side menu. Choose “Create Dashboard”.
 
 Choose the “⚙” icon in the top-right corner. Use the following settings:
-* Title: `Ping`
+* Title: `Ping: RTT`
 * Refresh live dashboards: on
 * Graph tooltip: Shared crosshair
 
@@ -327,7 +327,9 @@ Sometimes your modifications are not reflected to all repeated visualization pan
 
 #### 5.2. Packet loss rate
 
-Similarly, add a new visualization titled `Loss` to a new dashboard. Use the following settings:
+Similarly, create a new dashboard named `Ping: Loss` with the same variables.
+
+Add a new visualization titled `Loss` to the new dashboard. Use the following settings:
 * Query:
   * Data source: InfluxDB
   * Query:
