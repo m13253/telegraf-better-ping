@@ -292,7 +292,7 @@ Go back and add 2 more variables:
 Choose “Close” in the top-right corner.
 
 Change the current selected variable values in the top-left corner:
-* Data Source: `InfluxDB`
+* Data Source: InfluxDB
 * Aggregation Interval: Minimum
 * Moving Average Period: Off
 * Bucket: `<your bucket name>`
@@ -328,7 +328,9 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
     else
         data
     ```
-    (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
+
+    **Note:** Alternatively, you may want to use `"mean"` (instead of `"max"`) if you care about the average RTT (instead of the spikes) within each aggregation window.
+
 * Panel options:
   * Title: `RTT: ${name}`
   * Repeat options:
