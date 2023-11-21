@@ -226,8 +226,16 @@ Choose the “⚙” icon in the top-right corner. Use the following settings:
 * Refresh live dashboards: on
 * Graph tooltip: Shared crosshair
 
-Choose “Variables”, add 4 new variables. Use the following settings:
+Choose “Variables”, add 3 new variables. Use the following settings:
 * Variable 1:
+  * Select variable type: Data source
+  * Name: `dataSource`
+  * Label: `Data Source`
+  * Type: `InfluxDB`
+
+  Choose “Run query”, make sure it shows `InfluxDB` and `default`. Then, choose “Apply”.
+
+* Variable 2:
   * Select variable type: Interval
   * Name: `aggregationInterval`
   * Label: `Aggregation Interval`
@@ -235,7 +243,7 @@ Choose “Variables”, add 4 new variables. Use the following settings:
 
   Choose “Run query”, make sure it shows all intervals. Then, choose “Apply”.
 
-* Variable 2:
+* Variable 3:
   * Select variable type: Interval
   * Name: `aggregationPeriod`
   * Label: `Aggregation Period`
@@ -243,10 +251,20 @@ Choose “Variables”, add 4 new variables. Use the following settings:
 
   Choose “Run query”, make sure it shows all periods. Then, choose “Apply”.
 
-* Variable 3:
+Choose “Close” in the top-right corner.
+
+Set time range to “Last 15 minutes” and refresh rate to “Auto” in the top-right corner.
+
+Change the current selected variable values in the top-left corner:
+* Data Source: `InfluxDB`
+* Aggregation Interval: Minimum
+* Aggregation Period: Minimum
+
+Go back and add 2 more variables:
+* Variable 4:
   * Name: `bucket`
   * Label: `Bucket`
-  * Data source: InfluxDB
+  * Data source: `${dataSource}`
   * Query:
     ```go
     buckets()
@@ -254,10 +272,10 @@ Choose “Variables”, add 4 new variables. Use the following settings:
 
   Choose “Run query”, make sure it shows your bucket name. Then, choose “Apply”.
 
-* Variable 4:
+* Variable 5:
   * Name: `name`
   * Label: `Destination / Comment`
-  * Data source: InfluxDB
+  * Data source: `${dataSource}`
   * Query:
     ```go
     from(bucket: "${bucket}")
@@ -273,9 +291,8 @@ Choose “Variables”, add 4 new variables. Use the following settings:
 
 Choose “Close” in the top-right corner.
 
-Set time range to “Last 15 minutes” and refresh rate to “Auto” in the top-right corner.
-
 Change the current selected variable values in the top-left corner:
+* Data Source: `InfluxDB`
 * Aggregation Interval: Minimum
 * Aggregation Period: Minimum
 * Bucket: `<your bucket name>`
@@ -283,7 +300,7 @@ Change the current selected variable values in the top-left corner:
 
 Choose “Add” → “Visualization” in the top-right corner. Use the following settings:
 * Query:
-  * Data source: InfluxDB
+  * Data source: `${dataSource}`
   * Query:
     ```go
     import "date"
@@ -331,6 +348,8 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
 Choose “Apply” in the top-right corner.
 
 Then, go back to dashboard settings. Change the following settings:
+* Variables → `dataSource`:
+  * Show on dashboard: Nothing
 * Variables → `bucket`:
   * Show on dashboard: Nothing
 * Variables → `name`:
@@ -352,7 +371,7 @@ Similarly, create a new dashboard named `Ping: Loss` with the same variables.
 
 Add a new visualization titled `Loss` to the new dashboard. Use the following settings:
 * Query:
-  * Data source: InfluxDB
+  * Data source: `${dataSource}`
   * Query:
     ```go
     import "date"
