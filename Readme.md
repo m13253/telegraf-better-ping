@@ -310,6 +310,11 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
             duration(v: "${aggregationInterval}")
         else
             v.windowPeriod
+    movingAveragePeriod =
+        if "${movingAveragePeriod}" != "Off" and int(v: duration(v: "${movingAveragePeriod}")) > int(v: aggregationInterval) then
+            duration(v: "${movingAveragePeriod}")
+        else
+            aggregationInterval
 
     data = from(bucket: "${bucket}")
         |> range(start: date.sub(from: v.timeRangeStart, d: movingAveragePeriod), stop: date.add(to: v.timeRangeStop, d: movingAveragePeriod))
@@ -318,8 +323,8 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> group(columns: ["_time", "_value"], mode: "except")
 
-    if "${movingAveragePeriod}" != "Off" and int(v: duration(v: "${movingAveragePeriod}")) > int(v: aggregationInterval) then
-        data |> timedMovingAverage(every: aggregationInterval: period: duration(v: "${movingAveragePeriod}"))
+    if int(v: movingAveragePeriod) > int(v: aggregationInterval) then
+        data |> timedMovingAverage(every: aggregationInterval, period: movingAveragePeriod)
     else
         data
     ```
@@ -381,6 +386,11 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
             duration(v: "${aggregationInterval}")
         else
             v.windowPeriod
+    movingAveragePeriod =
+        if "${movingAveragePeriod}" != "Off" and int(v: duration(v: "${movingAveragePeriod}")) > int(v: aggregationInterval) then
+            duration(v: "${movingAveragePeriod}")
+        else
+            aggregationInterval
 
     data = from(bucket: "${bucket}")
         |> range(start: date.sub(from: v.timeRangeStart, d: movingAveragePeriod), stop: date.add(to: v.timeRangeStop, d: movingAveragePeriod))
@@ -391,8 +401,8 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
         |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value, name: if exists r.comment then r.comment else r.dest}))
         |> group(columns: ["_time", "_value"], mode: "except")
 
-    if "${movingAveragePeriod}" != "Off" and int(v: duration(v: "${movingAveragePeriod}")) > int(v: aggregationInterval) then
-        data |> timedMovingAverage(every: aggregationInterval: period: duration(v: "${movingAveragePeriod}"))
+    if int(v: movingAveragePeriod) > int(v: aggregationInterval) then
+        data |> timedMovingAverage(every: aggregationInterval, period: movingAveragePeriod)
     else
         data
     ```
