@@ -245,9 +245,9 @@ Choose “Variables”, add 3 new variables. Use the following settings:
 
 * Variable 3:
   * Select variable type: Interval
-  * Name: `aggregationPeriod`
-  * Label: `Aggregation Period`
-  * Values: `Minimum,1s,5s,15s,30s,1m,5m,15m,30m,1h,3h,6h,12h,1d,2d,7d,30d,90d`
+  * Name: `movingAveragePeriod`
+  * Label: `Moving Average Period`
+  * Values: `Off,1s,5s,15s,30s,1m,5m,15m,30m,1h,3h,6h,12h,1d,2d,7d,30d,90d`
 
   Choose “Run query”, make sure it shows all periods. Then, choose “Apply”.
 
@@ -258,7 +258,7 @@ Set time range to “Last 15 minutes” and refresh rate to “Auto” in the to
 Change the current selected variable values in the top-left corner:
 * Data Source: `InfluxDB`
 * Aggregation Interval: Minimum
-* Aggregation Period: Minimum
+* Moving Average Period: Minimum
 
 Go back and add 2 more variables:
 * Variable 4:
@@ -294,7 +294,7 @@ Choose “Close” in the top-right corner.
 Change the current selected variable values in the top-left corner:
 * Data Source: `InfluxDB`
 * Aggregation Interval: Minimum
-* Aggregation Period: Minimum
+* Moving Average Period: Off
 * Bucket: `<your bucket name>`
 * Destination / Comment: All
 
@@ -310,18 +310,18 @@ Choose “Add” → “Visualization” in the top-right corner. Use the follow
             duration(v: "${aggregationInterval}")
         else
             v.windowPeriod
-    aggregationPeriod =
-        if "${aggregationPeriod}" != "Minimum" and int(v: duration(v: "${aggregationPeriod}")) > int(v: aggregationInterval) then
-            duration(v: "${aggregationPeriod}")
-        else
-            aggregationInterval
 
-    from(bucket: "${bucket}")
-        |> range(start: date.sub(from: v.timeRangeStart, d: aggregationPeriod), stop: date.add(to: v.timeRangeStop, d: aggregationPeriod))
+    data = from(bucket: "${bucket}")
+        |> range(start: date.sub(from: v.timeRangeStart, d: movingAveragePeriod), stop: date.add(to: v.timeRangeStop, d: movingAveragePeriod))
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "rtt" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
-        |> aggregateWindow(every: aggregationInterval, period: aggregationPeriod, fn: max, createEmpty: false)
+        |> aggregateWindow(every: aggregationInterval, fn: max, createEmpty: false)
         |> map(fn: (r) => ({r with name: if exists r.comment then r.comment else r.dest}))
         |> group(columns: ["_time", "_value"], mode: "except")
+
+    if "${movingAveragePeriod}" != "Off" and int(v: duration(v: "${movingAveragePeriod}")) > int(v: aggregationInterval) then
+        data |> timedMovingAverage(every: aggregationInterval: period: duration(v: "${movingAveragePeriod}"))
+    else
+        data
     ```
     (**Note:** Alternatively, you may want to use `"mean"` instead of `"max"` if you care about the average round-trip-time within aggregation windows.)
 * Panel options:
@@ -381,25 +381,25 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
             duration(v: "${aggregationInterval}")
         else
             v.windowPeriod
-    aggregationPeriod =
-        if "${aggregationPeriod}" != "Minimum" and int(v: duration(v: "${aggregationPeriod}")) > int(v: aggregationInterval) then
-            duration(v: "${aggregationPeriod}")
-        else
-            aggregationInterval
 
-    from(bucket: "${bucket}")
-        |> range(start: date.sub(from: v.timeRangeStart, d: aggregationPeriod), stop: date.add(to: v.timeRangeStop, d: aggregationPeriod))
+    data = from(bucket: "${bucket}")
+        |> range(start: date.sub(from: v.timeRangeStart, d: movingAveragePeriod), stop: date.add(to: v.timeRangeStop, d: movingAveragePeriod))
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
         |> difference()
         |> map(fn: (r) => ({r with _value: float(v: (r._value + 98304) % 65536 - 32768)}))
-        |> aggregateWindow(every: aggregationInterval, period: aggregationPeriod, fn: mean, createEmpty: false)
+        |> aggregateWindow(every: aggregationInterval, period: movingAveragePeriod, fn: mean, createEmpty: false)
         |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value, name: if exists r.comment then r.comment else r.dest}))
         |> group(columns: ["_time", "_value"], mode: "except")
+
+    if "${movingAveragePeriod}" != "Off" and int(v: duration(v: "${movingAveragePeriod}")) > int(v: aggregationInterval) then
+        data |> timedMovingAverage(every: aggregationInterval: period: duration(v: "${movingAveragePeriod}"))
+    else
+        data
     ```
 
-    **Note 1:** Out-of-order responses may produce a pair of positive and negative spikes. A wider aggregation period can flatten the spikes out.
+    **Note 1:** Out-of-order responses may produce a pair of positive and negative spikes. A wider Moving Average Period can flatten the spikes out.
 
-    **Note 2:** Restarting Telegraf-better-ping will produce a huge spike on the graph. Please wait for the aggregation period to pass, so the graph can settle down.
+    **Note 2:** However, restarting Telegraf-better-ping will produce a huge spike on the graph. Please wait for the Moving Average Period to pass, so the graph can settle down.
 
     **Note 3:** If your ping destination is multicast, you might need to modify the loss rate formula.
 
