@@ -231,12 +231,14 @@ Choose “Variables”, add 3 new variables. Use the following settings:
 * Name: `aggregationInterval`
 * Label: `Aggregation Interval`
 * Values: `Minimum,1s,1m,1h,3h,6h,12h,1d`
+
 Choose “Run query”, make sure it shows all intervals. Then, choose “Apply”.
 
 * Select variable type: Interval
 * Name: `aggregationPeriod`
 * Label: `Aggregation Period`
 * Values: `Minimum,1s,1m,1h,3h,6h,12h,1d,2d,7d,30d,90d`
+
 Choose “Run query”, make sure it shows all periods. Then, choose “Apply”.
 
 * Name: `name`
@@ -252,6 +254,7 @@ Choose “Run query”, make sure it shows all periods. Then, choose “Apply”
   ```
 * Multi-value: yes
 * Include All option: yes
+
 Choose “Run query”, make sure it shows all your PING destinations. Then, choose “Apply”.
 
 Choose “Close” in the top-right corner.
