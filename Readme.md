@@ -149,7 +149,7 @@ Make the following modification:
 [[inputs.execd]]
   command = [
     "telegraf-better-ping",
-    "<my", "telegraf-better-ping", "command", "line", "arguments", "but", "splitted>",
+    "<my ...", "telegraf-better-ping ...", "command ...", "line ...", "arguments ...", "but ...", "splitted>",
   ]
 ```
 Refer to the Section [Command line interface](#command-line-interface) to learn how to configure the command line arguments.
