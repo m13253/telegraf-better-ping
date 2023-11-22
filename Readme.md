@@ -176,7 +176,7 @@ $ docker create --name telegraf-better-ping-1 \
     --link influxdb-1:influxdb \
     -e INFLUX_TOKEN='<your API token>' \
     m13253/telegraf-better-ping:latest \
-    --config 'http://telegraf:8086/api/v2/telegrafs/<my configuration URL>'
+    telegraf --config 'http://telegraf:8086/api/v2/telegrafs/<my configuration URL>'
 $ docker start telegraf-better-ping-1
 ```
 
