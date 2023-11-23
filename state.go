@@ -10,31 +10,31 @@ import (
 )
 
 type appState struct {
-	Params          *params.PingParams
-	Epoch           time.Time
-	LastNow         atomic.Int64
-	RandomGenerator csprng.CSPRNG
-	Destinations    []destinationState
+	Params       *params.PingParams
+	Destinations []destinationState
+	epoch        time.Time
+	lastNow      atomic.Int64
+	rng          csprng.CSPRNG
 }
 
 type destinationState struct {
 	Params *params.DestinationParams
 	ID     uint16
-	Crypt  [2]atomic.Value
+	Cipher [2]atomic.Value
 }
 
 func NewApp(params *params.PingParams) (app *appState, err error) {
 	app = &appState{
 		Params:       params,
-		Epoch:        time.Now(),
 		Destinations: make([]destinationState, 0, len(params.Destinations)),
+		epoch:        time.Now(),
 	}
 	for i := range params.Destinations {
 		app.Destinations = append(app.Destinations, destinationState{
 			Params: &params.Destinations[i],
 		})
 		dest := &app.Destinations[i]
-		dest.ID, err = app.RandomGenerator.UInt16()
+		dest.ID, err = app.rng.UInt16()
 		if err != nil {
 			err = fmt.Errorf("failed to initialize destination %s: %w", params.Destinations[i].Destination, err)
 			return
@@ -43,16 +43,16 @@ func NewApp(params *params.PingParams) (app *appState, err error) {
 	return
 }
 
-func (app *appState) IncreasingNow() time.Time {
+func (app *appState) MonotonicNow() time.Time {
 	now := time.Now()
-	sinceEpoch := now.Sub(app.Epoch).Nanoseconds()
+	sinceEpoch := now.Sub(app.epoch).Nanoseconds()
 	for {
-		lastSinceEpoch := app.LastNow.Load()
+		lastSinceEpoch := app.lastNow.Load()
 		diff := lastSinceEpoch - sinceEpoch
 		if diff >= 0 {
 			now = now.Add(time.Duration(diff+1) * time.Nanosecond)
 			sinceEpoch += diff + 1
-		} else if app.LastNow.CompareAndSwap(lastSinceEpoch, sinceEpoch) {
+		} else if app.lastNow.CompareAndSwap(lastSinceEpoch, sinceEpoch) {
 			return now
 		}
 	}

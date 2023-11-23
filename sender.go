@@ -32,40 +32,53 @@ func (app *appState) startSenders() {
 
 func (app *appState) startSender(dest *destinationState, wg *sync.WaitGroup) {
 	ipv4Conn, ipv6Conn, err := app.createSendConn(dest.Params)
+	if ipv4Conn != nil {
+		defer ipv4Conn.Close()
+	}
+	if ipv6Conn != nil {
+		defer ipv6Conn.Close()
+	}
 	if err != nil {
 		log.Println(err)
 		wg.Done()
 		return
 	}
+
+	seq, err := app.rng.UInt16()
+	if err != nil {
+		log.Fatalf("failed to initialize destination %s: %v\n", dest.Params.Destination, err)
+	}
+
 	delay := time.Duration(rand.Int63n(int64(dest.Params.Interval)))
-	fmt.Printf("# PING %s with %d bytes of data, will start in %.3f seconds.\n", strings.ReplaceAll(dest.Params.Destination, "\n", "\n# "), dest.Params.Size, delay.Seconds())
+	fmt.Printf("# PING %s with %d bytes of data, will start in %.3f seconds at sequence number %d.\n", strings.ReplaceAll(dest.Params.Destination, "\n", "\n# "), dest.Params.Size, delay.Seconds(), seq)
 	time.Sleep(delay)
 	var (
-		seq   uint16
+		count uint16
 		crypt cipher.AEAD
 	)
-
 	ticker := time.NewTicker(dest.Params.Interval)
 	defer ticker.Stop()
+
 out:
 	for ; ; <-ticker.C {
-		if seq == 0 {
+		if count == 0 {
 			if crypt != nil {
-				dest.Crypt[1].Store(crypt)
+				dest.Cipher[1].Store(crypt)
 			}
-			crypt, err = app.RandomGenerator.Chacha20Poly1305()
+			crypt, err = app.rng.DeriveCipher()
 			if err != nil {
 				log.Fatalf("failed to initialize destination %s: %v\n", dest.Params.Destination, err)
 			}
-			dest.Crypt[0].Store(crypt)
+			dest.Cipher[0].Store(crypt)
 		}
 		// Yes, integer overflow is defined behavior in Go.
 		// https://go.dev/ref/spec#Integer_overflow
-		seq++
+		count++
 
 		addrs, err := net.LookupHost(dest.Params.Destination)
 		if err != nil {
 			log.Printf("failed to lookup %s: %v\n", dest.Params.Destination, err)
+			seq++
 			continue
 		}
 		var firstErr error
@@ -75,6 +88,7 @@ out:
 				if ipv6Addr, err := net.ResolveIPAddr("ip6", addr); err == nil {
 					_, err = ipv6Conn.WriteTo(ipv6Packet, nil, ipv6Addr)
 					if err == nil {
+						seq++
 						continue out
 					}
 					firstErr = err
@@ -84,6 +98,7 @@ out:
 				if ipv4Addr, err := net.ResolveIPAddr("ip4", addr); err == nil {
 					_, err = ipv4Conn.WriteTo(ipv4Packet, nil, ipv4Addr)
 					if err == nil {
+						seq++
 						continue out
 					}
 					firstErr = err
@@ -95,12 +110,13 @@ out:
 		} else {
 			log.Printf("failed to ping %s: no available address\n", dest.Params.Destination)
 		}
+		seq++
 	}
 }
 
 func (app *appState) prepareRequestBody(dest *destinationState, seq uint16, crypt cipher.AEAD) (ipv4Packet, ipv6Packet []byte) {
 	sendTime := time.Now()
-	sendTimeSinceEpoch := sendTime.Sub(app.Epoch)
+	sendTimeSinceEpoch := sendTime.Sub(app.epoch)
 	unixTimeSec := sendTime.Unix()
 	unixTimeMSec := sendTime.Nanosecond() / 1000
 
@@ -116,6 +132,7 @@ func (app *appState) prepareRequestBody(dest *destinationState, seq uint16, cryp
 	binary.BigEndian.PutUint64(payload[:8], uint64(sendTimeSinceEpoch))
 
 	ciphertext := crypt.Seal(payload[:0], nonce[:], payload, additional[:])
+
 	data := make([]byte, dest.Params.Size)
 	copy(data[:8], nonce[4:12])
 	copy(data[8:16], additional[:])
@@ -126,6 +143,7 @@ func (app *appState) prepareRequestBody(dest *destinationState, seq uint16, cryp
 		Seq:  int(seq),
 		Data: data,
 	}
+
 	ipv4Packet, err := (&icmp.Message{
 		Type: ipv4.ICMPTypeEcho,
 		Body: &body,
@@ -133,6 +151,7 @@ func (app *appState) prepareRequestBody(dest *destinationState, seq uint16, cryp
 	if err != nil {
 		panic(err)
 	}
+
 	ipv6Packet, err = (&icmp.Message{
 		Type: ipv6.ICMPTypeEchoRequest,
 		Body: &body,

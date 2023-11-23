@@ -41,6 +41,7 @@ func (app *appState) startReceivers() {
 	ipv4PacketConn.SetControlMessage(ipv4.FlagDst, true)
 	ipv6Conn, err := icmp.ListenPacket("ip6:58", "")
 	if err != nil {
+		ipv4PacketConn.Close()
 		log.Fatalf("failed to listen on ICMPv6 protocol: %v\n", err)
 	}
 	ipv6PacketConn := ipv6Conn.IPv6PacketConn()
@@ -79,7 +80,7 @@ func (app *appState) printResponse(resp *icmpResponse) {
 
 func (app *appState) processResponse(size int, src, dst net.Addr, recvTime time.Time, hasHopLimit bool, hopLimit uint8, body *icmp.Echo) {
 	if len(body.Data) < 40 {
-		log.Printf("failed to decipher ICMP message from %s: body is less than 40 bytes long", src)
+		log.Printf("failed to decode ICMP message from %s: body is less than 40 bytes long", src)
 		return
 	}
 
@@ -93,15 +94,19 @@ func (app *appState) processResponse(size int, src, dst net.Addr, recvTime time.
 
 	for i := range app.Destinations {
 		dest := &app.Destinations[i]
+		if uint16(body.ID) != dest.ID {
+			continue
+		}
+
 		for j := 0; j < 2; j++ {
-			if crypt, ok := dest.Crypt[j].Load().(cipher.AEAD); ok {
+			if crypt, ok := dest.Cipher[j].Load().(cipher.AEAD); ok {
 				payload, err := crypt.Open(nil, nonce[:], ciphertext, additional)
 				if err != nil {
 					continue
 				}
 
 				sendTimeSinceEpoch := time.Duration(binary.BigEndian.Uint64(payload[:8]))
-				recvTimeSinceEpoch := recvTime.Sub(app.Epoch)
+				recvTimeSinceEpoch := recvTime.Sub(app.epoch)
 				rtt := recvTimeSinceEpoch - sendTimeSinceEpoch
 
 				app.printResponse(&icmpResponse{
@@ -124,13 +129,14 @@ func (app *appState) processResponse(size int, src, dst net.Addr, recvTime time.
 }
 
 func (app *appState) startIPv4Receiver(ipv4Conn *ipv4.PacketConn) {
+	defer ipv4Conn.Close()
 	var buf [65536]byte
 	for {
 		n, cm, src, err := ipv4Conn.ReadFrom(buf[:])
 		if err != nil {
 			log.Fatalf("failed to receive ICMP message: %v\n", err)
 		}
-		recvTime := app.IncreasingNow()
+		recvTime := app.MonotonicNow()
 		var (
 			hasTTL bool
 			ttl    uint8
@@ -153,13 +159,14 @@ func (app *appState) startIPv4Receiver(ipv4Conn *ipv4.PacketConn) {
 }
 
 func (app *appState) startIPv6Receiver(ipv6Conn *ipv6.PacketConn) {
+	defer ipv6Conn.Close()
 	var buf [65536]byte
 	for {
 		n, cm, src, err := ipv6Conn.ReadFrom(buf[:])
 		if err != nil {
 			log.Fatalf("failed to receive ICMPv6 message: %v\n", err)
 		}
-		recvTime := app.IncreasingNow()
+		recvTime := app.MonotonicNow()
 		var (
 			hasHopLimit bool
 			hopLimit    uint8

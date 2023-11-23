@@ -53,22 +53,15 @@ func (rng *CSPRNG) Read(buf []byte) (n int, err error) {
 	return
 }
 
-func (rng *CSPRNG) Chacha20Poly1305() (c cipher.AEAD, err error) {
+func (rng *CSPRNG) DeriveCipher() (c cipher.AEAD, err error) {
 	var key [chacha20poly1305.KeySize]byte
 	_, err = rng.Read(key[:])
 	if err == nil {
 		c, err = chacha20poly1305.New(key[:])
 	}
 	if err != nil {
-		err = fmt.Errorf("failed to initialize cipher: %w", err)
+		err = fmt.Errorf("failed to initialize encryption engine: %w", err)
 	}
-	return
-}
-
-func (rng *CSPRNG) UInt8() (val uint8, err error) {
-	var buf [1]byte
-	_, err = rng.Read(buf[:])
-	val = buf[0]
 	return
 }
 
@@ -76,19 +69,5 @@ func (rng *CSPRNG) UInt16() (val uint16, err error) {
 	var buf [2]byte
 	_, err = rng.Read(buf[:])
 	val = binary.NativeEndian.Uint16(buf[:])
-	return
-}
-
-func (rng *CSPRNG) UInt32() (val uint32, err error) {
-	var buf [4]byte
-	_, err = rng.Read(buf[:])
-	val = binary.NativeEndian.Uint32(buf[:])
-	return
-}
-
-func (rng *CSPRNG) UInt64() (val uint64, err error) {
-	var buf [8]byte
-	_, err = rng.Read(buf[:])
-	val = binary.NativeEndian.Uint64(buf[:])
 	return
 }
