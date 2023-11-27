@@ -468,6 +468,24 @@ If you run Telegraf-better-ping without the provided Docker container image, you
 
 Docker comes with no IPv6 connectivity by default.
 
+#### Method 1: Use bridged network (hard)
+
 Please refer to the [Docker manuals](https://docs.docker.com/config/daemon/ipv6/) to enable IPv6 support.
 
-Alternatively, you can also run Telegraf-better-ping [using the host network](https://docs.docker.com/network/network-tutorial-host/) without enabling IPv6 inside Docker networks. However, be aware that host network does not support container name resolution.
+You will need to configure either subnet routing, NDP proxy, NAT66, or NPTv6 on your router to allow the containers to access the Internet.
+
+#### Method 2: Use host network (easy)
+
+Alternatively, you can also run Telegraf-better-ping [using the host network](https://docs.docker.com/network/network-tutorial-host/) without enabling IPv6 inside Docker networks.
+```bash
+$ docker create --name telegraf-better-ping-1 \
+    -e INFLUX_URL='http://127.0.0.1:8086' \
+    ... \
+    --network host \
+    m13253/telegraf-better-ping:latest \
+    ...
+```
+
+However, there are two issues with this route:
+1. Inter-container name resolution does not work. So you will need to specify `INFLUX_URL='http://127.0.0.1:8086'` instead of `INFLUX_URL='http://influxdb:8086'`.
+2. The Dnsmasq DNS server in the container may conflict with any other DNS server running on `127.0.0.53` of the host network (for example, systemd-resolved).
