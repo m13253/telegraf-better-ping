@@ -84,11 +84,23 @@ $ sudo chown 472:0 /var/lib/docker-volumes/grafana/data
 $ sudo chown 1000:1000 /var/lib/docker-volumes/influxdb/data
 ```
 
-### 2. Setting up InfluxDB
+### 2. Create a bridge network for related containers
+
+```bash
+docker network create \
+  -d bridge \
+  -o 'com.docker.network.bridge.enable_ip_masquerade=true' \
+  -o 'com.docker.network.bridge.enable_icc=true' \
+  influxdb-net
+```
+
+### 3. Setting up InfluxDB
 
 ```bash
 $ docker pull influxdb:latest
 $ docker create --name influxdb-1 \
+    -h influxdb-1 \
+    --network influxdb-net \
     -p 127.0.0.1:8086:8086/tcp \
     -v /var/lib/docker-volumes/influxdb/data:/var/lib/influxdb2 \
     influxdb:latest
@@ -108,9 +120,9 @@ Log into `http://127.0.0.1:8086`, choose “Load Data” → “Bucket” from t
 
 Choose “Settings” next to your bucket, select a retention period as your wish. Any data older than the specified period will be deleted.
 
-### 3. Setting up Telegraf-better-ping
+### 4. Setting up Telegraf-better-ping
 
-#### 3.a. Easy method: Passing configuration through environment variables.
+#### 4.a. Easy method: Passing configuration through environment variables.
 
 Log into `http://127.0.0.1:8086`, choose “Load Data” → “API Tokens” from the left-side menu.
 
@@ -125,18 +137,19 @@ Take note of your Telegraf-better-ping token.
 ```bash
 $ docker pull m13253/telegraf-better-ping:latest
 $ docker create --name telegraf-better-ping-1 \
-    --link influxdb-1:influxdb \
     -e INFLUX_URL='http://influxdb:8086' \
     -e INFLUX_TOKEN='<your Telegraf-better-ping token>' \
     -e INFLUX_ORG='<your organization name>' \
     -e INFLUX_BUCKET='<your bucket name>' \
-    -e TELEGRAF_BETTER_PING_ARGS='<your telegraf-better-ping command line arguments>'
+    -e TELEGRAF_BETTER_PING_ARGS='<your telegraf-better-ping command line arguments>' \
+    -h telegraf-better-ping-1 \
+    --network influxdb-net \
     m13253/telegraf-better-ping:latest
 $ docker start telegraf-better-ping-1
 ```
 Refer to the Section [Command line interface](#command-line-interface) to learn how to configure `TELEGRAF_BETTER_PING_ARGS`.
 
-#### 3.b. Alternative method: Use InfluxDB to distribute Telegraf configuration files.
+#### 4.b. Alternative method: Use InfluxDB to distribute Telegraf configuration files.
 
 Log into `http://127.0.0.1:8086`, choose “Load Data” → “Telegraf” from the left-side menu.
 
@@ -173,14 +186,15 @@ Edit the newly added Telegraf configuration, make the following modifications:
 ```bash
 $ docker pull m13253/telegraf-better-ping:latest
 $ docker create --name telegraf-better-ping-1 \
-    --link influxdb-1:influxdb \
     -e INFLUX_TOKEN='<your API token>' \
+    -h telegraf-better-ping-1 \
+    --network influxdb-net \
     m13253/telegraf-better-ping:latest \
     telegraf --config 'http://telegraf:8086/api/v2/telegrafs/<my configuration URL>'
 $ docker start telegraf-better-ping-1
 ```
 
-### 4. Setting up Grafana
+### 5. Setting up Grafana
 
 Log into `http://127.0.0.1:8086` again, choose “Load Data” → “API Tokens” from the left-side menu.
 
@@ -195,7 +209,8 @@ Take note of your Grafana token.
 ```bash
 $ docker pull grafana/grafana:latest
 $ docker create --name grafana-1 \
-    --link influxdb-1:influxdb \
+    -h grafana-1 \
+    --network influxdb-net \
     -p 127.0.0.1:3000:3000/tcp \
     -v /var/lib/docker-volumes/grafana/data:/var/lib/grafana \
     grafana/grafana:latest
@@ -215,9 +230,9 @@ Add a new data source using the following settings:
 * Token: `<your Grafana token>`
 * Min time interval: 1ms
 
-### 5. Designing your Grafana dashboard
+### 6. Designing your Grafana dashboard
 
-#### 5.1. Round-trip time (RTT)
+#### 6.1. Round-trip time (RTT)
 
 Go to `http://127.0.0.1:3000`, choose “Dashboards” from the left-side menu. Choose “Create Dashboard”.
 
@@ -372,7 +387,7 @@ Save your dashboard. If asked, set the following options:
 
 Sometimes your modifications are not reflected to all repeated visualization panels. If that happens, reload your web page.
 
-#### 5.2. Packet loss rate
+#### 6.2. Packet loss rate
 
 Similarly, create a new dashboard named `Ping: Loss` with the same variables.
 
@@ -453,4 +468,4 @@ Docker comes with no IPv6 connectivity by default.
 
 Please refer to the [Docker manuals](https://docs.docker.com/config/daemon/ipv6/) to enable IPv6 support.
 
-Alternatively, you can also run Telegraf-better-ping [using the host network](https://docs.docker.com/network/network-tutorial-host/) without enabling IPv6 inside Docker networks. However, be aware that host network may not support `--link`.
+Alternatively, you can also run Telegraf-better-ping [using the host network](https://docs.docker.com/network/network-tutorial-host/) without enabling IPv6 inside Docker networks. However, be aware that host network does not support container name resolution.
