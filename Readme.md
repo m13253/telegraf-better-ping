@@ -112,13 +112,15 @@ Open your browser, go to `http://127.0.0.1:8086` to go through the first-time se
 Take notes of:
 * Your operator token
 * Your username and password
-* Your organization name and bucket name
+* Your organization name
 
 (**Warning:** The “Copy to Clipboard” button may be broken. Please copy the token manually!)
 
+InfluxDB will use the initial bucket to store its own metrics data, so we will create a separate bucket for our data.
+
 Log into `http://127.0.0.1:8086`, choose “Load Data” → “Bucket” from the left-side menu.
 
-Choose “Settings” next to your bucket, select a retention period as your wish. Any data older than the specified period will be deleted.
+Type a bucket name (e.g. `ping`). Select a retention period as your wish. Any data older than the specified period will be deleted.
 
 ### 4. Setting up Telegraf-better-ping
 
