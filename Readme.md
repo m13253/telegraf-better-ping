@@ -143,6 +143,7 @@ $ docker create --name telegraf-better-ping-1 \
     -e INFLUX_BUCKET='<your bucket name>' \
     -e TELEGRAF_BETTER_PING_ARGS='<your telegraf-better-ping command line arguments>' \
     -h telegraf-better-ping-1 \
+    --link influxdb-1:influxdb \
     --network influxdb-net \
     m13253/telegraf-better-ping:latest
 $ docker start telegraf-better-ping-1
@@ -188,6 +189,7 @@ $ docker pull m13253/telegraf-better-ping:latest
 $ docker create --name telegraf-better-ping-1 \
     -e INFLUX_TOKEN='<your API token>' \
     -h telegraf-better-ping-1 \
+    --link influxdb-1:influxdb \
     --network influxdb-net \
     m13253/telegraf-better-ping:latest \
     telegraf --config 'http://telegraf:8086/api/v2/telegrafs/<my configuration URL>'
@@ -210,6 +212,7 @@ Take note of your Grafana token.
 $ docker pull grafana/grafana:latest
 $ docker create --name grafana-1 \
     -h grafana-1 \
+    --link influxdb-1:influxdb \
     --network influxdb-net \
     -p 127.0.0.1:3000:3000/tcp \
     -v /var/lib/docker-volumes/grafana/data:/var/lib/grafana \
