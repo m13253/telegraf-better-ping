@@ -99,7 +99,6 @@ docker network create \
 ```bash
 $ docker pull influxdb:latest
 $ docker create --name influxdb-1 \
-    -h influxdb-1 \
     --network influxdb-net \
     --network-alias influxdb \
     -p 127.0.0.1:8086:8086/tcp \
@@ -212,7 +211,6 @@ Take note of your Grafana token.
 ```bash
 $ docker pull grafana/grafana:latest
 $ docker create --name grafana-1 \
-    -h grafana-1 \
     --link influxdb-1:influxdb \
     --network influxdb-net \
     -p 127.0.0.1:3000:3000/tcp \
