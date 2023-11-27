@@ -101,6 +101,7 @@ $ docker pull influxdb:latest
 $ docker create --name influxdb-1 \
     -h influxdb-1 \
     --network influxdb-net \
+    --network-alias influxdb \
     -p 127.0.0.1:8086:8086/tcp \
     -v /var/lib/docker-volumes/influxdb/data:/var/lib/influxdb2 \
     influxdb:latest
