@@ -43,16 +43,18 @@ func NewApp(params *params.PingParams) (app *appState, err error) {
 	return
 }
 
-func (app *appState) MonotonicNow() time.Time {
-	now := time.Now()
-	sinceEpoch := now.Sub(app.epoch).Nanoseconds()
+// Return a time.Time with a Unix timestamp strictly later than the previous call.
+// This is to ensure leap seconds will not overwrite earlier data into InfluxDB.
+func (app *appState) nextUnixTime(now time.Time) time.Time {
+	sinceEpoch := now.Round(0).Sub(app.epoch).Nanoseconds()
 	for {
 		lastSinceEpoch := app.lastNow.Load()
 		diff := lastSinceEpoch - sinceEpoch
 		if diff >= 0 {
 			now = now.Add(time.Duration(diff+1) * time.Nanosecond)
 			sinceEpoch += diff + 1
-		} else if app.lastNow.CompareAndSwap(lastSinceEpoch, sinceEpoch) {
+		}
+		if app.lastNow.CompareAndSwap(lastSinceEpoch, sinceEpoch) {
 			return now
 		}
 	}

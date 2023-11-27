@@ -78,7 +78,7 @@ func (app *appState) printResponse(resp *icmpResponse) {
 	fmt.Print(sb.String())
 }
 
-func (app *appState) processResponse(size int, src, dst net.Addr, recvTime time.Time, hasHopLimit bool, hopLimit uint8, body *icmp.Echo) {
+func (app *appState) processResponse(size int, src, dst net.Addr, recvTimeSinceEpoch time.Duration, recvTime time.Time, hasHopLimit bool, hopLimit uint8, body *icmp.Echo) {
 	if len(body.Data) < 40 {
 		log.Printf("failed to decode ICMP message from %s: body is less than 40 bytes long", src)
 		return
@@ -106,7 +106,6 @@ func (app *appState) processResponse(size int, src, dst net.Addr, recvTime time.
 				}
 
 				sendTimeSinceEpoch := time.Duration(binary.BigEndian.Uint64(payload[:8]))
-				recvTimeSinceEpoch := recvTime.Sub(app.epoch)
 				rtt := recvTimeSinceEpoch - sendTimeSinceEpoch
 
 				app.printResponse(&icmpResponse{
@@ -136,7 +135,9 @@ func (app *appState) startIPv4Receiver(ipv4Conn *ipv4.PacketConn) {
 		if err != nil {
 			log.Fatalf("failed to receive ICMP message: %v\n", err)
 		}
-		recvTime := app.MonotonicNow()
+		recvTime := time.Now()
+		recvTimeSinceEpoch := recvTime.Sub(app.epoch)
+		recvTime = app.nextUnixTime(recvTime)
 		var (
 			hasTTL bool
 			ttl    uint8
@@ -153,7 +154,7 @@ func (app *appState) startIPv4Receiver(ipv4Conn *ipv4.PacketConn) {
 			continue
 		}
 		if body, ok := msg.Body.(*icmp.Echo); ok {
-			app.processResponse(n, src, dst, recvTime, hasTTL, ttl, body)
+			app.processResponse(n, src, dst, recvTimeSinceEpoch, recvTime, hasTTL, ttl, body)
 		}
 	}
 }
@@ -166,7 +167,9 @@ func (app *appState) startIPv6Receiver(ipv6Conn *ipv6.PacketConn) {
 		if err != nil {
 			log.Fatalf("failed to receive ICMPv6 message: %v\n", err)
 		}
-		recvTime := app.MonotonicNow()
+		recvTime := time.Now()
+		recvTimeSinceEpoch := recvTime.Sub(app.epoch)
+		recvTime = app.nextUnixTime(recvTime)
 		var (
 			hasHopLimit bool
 			hopLimit    uint8
@@ -183,7 +186,7 @@ func (app *appState) startIPv6Receiver(ipv6Conn *ipv6.PacketConn) {
 			continue
 		}
 		if body, ok := msg.Body.(*icmp.Echo); ok {
-			app.processResponse(n, src, dst, recvTime, hasHopLimit, hopLimit, body)
+			app.processResponse(n, src, dst, recvTimeSinceEpoch, recvTime, hasHopLimit, hopLimit, body)
 		}
 	}
 }
