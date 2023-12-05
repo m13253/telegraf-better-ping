@@ -4,6 +4,25 @@ A better Ping monitoring plugin for Telegraf / InfluxDB
 
 ![Screenshot](img/screenshot.png)
 
+## Table of Contents
+
+* [Why the stock Ping plugin is not good enough?](#why-the-stock-ping-plugin-is-not-good-enough)
+* [Command line interface](#command-line-interface)
+* [Running in Docker](#running-in-docker)
+  1. [Setting up database storage](#1-setting-up-database-storage)
+  2. [Create a bridge network for related containers](#2-create-a-bridge-network-for-related-containers)
+  3. [Setting up InfluxDB](#3-setting-up-influxdb)
+  4. [Setting up Telegraf-better-ping](#4-setting-up-telegraf-better-ping)
+     a. [Easy method](#4a-easy-method-passing-configuration-through-environment-variables)
+     b. [Alternative method](#4b-alternative-method-use-influxdb-to-distribute-telegraf-configuration-files)
+  5. [Setting up Grafana](#5-setting-up-grafana)
+  6. [Designing your Grafana dashboard](#6-designing-your-grafana-dashboard)
+     1. [Round-trip time (RTT)](#61-round-trip-time-rtt)
+     2. [Packet loss rate](#62-packet-loss-rate)
+* [Caveats](#caveats)
+  * [DNS caching](#dns-caching)
+  * [IPv6 connectivity](#ipv6-connectivity)
+
 ## Why the stock Ping plugin is not good enough?
 
 <https://github.com/influxdata/telegraf/issues/11145#issuecomment-1809246992>
@@ -460,7 +479,7 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
 
 ## Caveats
 
-### DNS Caching
+### DNS caching
 
 Telegraf-better-ping does not cache DNS responses. Therefore, the provided Docker container image has [Dnsmasq](https://dnsmasq.org) preinstalled, which caches DNS responses for Telegraf-better-ping.
 
