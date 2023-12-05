@@ -91,6 +91,7 @@ func (app *appState) processResponse(size int, src, dst net.Addr, recvTimeSinceE
 
 	additional := body.Data[8:16]
 	ciphertext := body.Data[16:]
+	buf := make([]byte, 0, len(ciphertext)-chacha20poly1305.Overhead)
 
 	for i := range app.Destinations {
 		dest := &app.Destinations[i]
@@ -100,7 +101,7 @@ func (app *appState) processResponse(size int, src, dst net.Addr, recvTimeSinceE
 
 		for j := 0; j < 2; j++ {
 			if crypt, ok := dest.Cipher[j].Load().(cipher.AEAD); ok {
-				payload, err := crypt.Open(nil, nonce[:], ciphertext, additional)
+				payload, err := crypt.Open(buf[:0], nonce[:], ciphertext, additional)
 				if err != nil {
 					continue
 				}

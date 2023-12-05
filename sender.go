@@ -128,7 +128,7 @@ func (app *appState) prepareRequestBody(dest *destinationState, seq uint16, cryp
 	var additional [8]byte
 	binary.LittleEndian.PutUint64(additional[:], uint64(unixTimeMSec))
 
-	payload := make([]byte, dest.Params.Size-32, dest.Params.Size-16)
+	payload := make([]byte, dest.Params.Size-(chacha20poly1305.Overhead+16), dest.Params.Size-16)
 	binary.BigEndian.PutUint64(payload[:8], uint64(sendTimeSinceEpoch))
 
 	ciphertext := crypt.Seal(payload[:0], nonce[:], payload, additional[:])
