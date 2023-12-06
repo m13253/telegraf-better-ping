@@ -66,11 +66,11 @@ func (rng *CSPRNG) DeriveCipher() (c cipher.AEAD, err error) {
 	return
 }
 
-func (rng *CSPRNG) Duration(lessThan time.Duration) (val time.Duration, err error) {
-	if lessThan <= 0 {
+func (rng *CSPRNG) Duration(shorterThan time.Duration) (val time.Duration, err error) {
+	if shorterThan <= 0 {
 		return
 	}
-	abs := uint64(lessThan)
+	abs := uint64(shorterThan)
 	threshold := 1<<63 - (1<<63)%abs
 
 	// https://c-faq.com/lib/randrange.html
