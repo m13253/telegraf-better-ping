@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
-	"math/rand"
 	"net"
 	"os"
 	"strings"
@@ -44,12 +43,15 @@ func (app *appState) startSender(dest *destinationState, wg *sync.WaitGroup) {
 		return
 	}
 
+	delay, err := app.rng.Duration(dest.Params.Interval)
+	if err != nil {
+		log.Fatalf("failed to initialize destination %s: %v\n", dest.Params.Destination, err)
+	}
 	seq, err := app.rng.UInt16()
 	if err != nil {
 		log.Fatalf("failed to initialize destination %s: %v\n", dest.Params.Destination, err)
 	}
 
-	delay := time.Duration(rand.Int63n(int64(dest.Params.Interval)))
 	fmt.Printf("# PING %s with %d bytes of data, will start in %.3f seconds at sequence number %d.\n", strings.ReplaceAll(dest.Params.Destination, "\n", "\n# "), dest.Params.Size, delay.Seconds(), seq)
 	time.Sleep(delay)
 	var (

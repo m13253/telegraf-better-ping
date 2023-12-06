@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"sync"
+	"time"
 
 	"golang.org/x/crypto/chacha20"
 	"golang.org/x/crypto/chacha20poly1305"
@@ -63,6 +64,27 @@ func (rng *CSPRNG) DeriveCipher() (c cipher.AEAD, err error) {
 		err = fmt.Errorf("failed to initialize encryption engine: %w", err)
 	}
 	return
+}
+
+func (rng *CSPRNG) Duration(lessThan time.Duration) (val time.Duration, err error) {
+	if lessThan <= 0 {
+		return
+	}
+	abs := uint64(lessThan)
+	threshold := 1<<63 - (1<<63)%abs
+
+	// https://c-faq.com/lib/randrange.html
+	var buf [8]byte
+	for {
+		_, err = rng.Read(buf[:])
+		if err != nil {
+			return
+		}
+		r := binary.NativeEndian.Uint64(buf[:]) & (1<<63 - 1)
+		if r < threshold {
+			return time.Duration(r % abs), nil
+		}
+	}
 }
 
 func (rng *CSPRNG) UInt16() (val uint16, err error) {
