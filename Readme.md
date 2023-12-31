@@ -437,7 +437,7 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
         |> filter(fn: (r) => r._measurement == "ping" and r._field == "icmp_seq" and (r.comment == "${name}" or not exists r.comment and r.dest == "${name}"))
         |> difference()
         |> map(fn: (r) => ({r with _value: float(v: (r._value + 98304) % 65536 - 32768)}))
-        |> aggregateWindow(every: aggregationInterval, fn: mean, createEmpty: false)
+        |> aggregateWindow(every: aggregationInterval, fn: mean, createEmpty: true)
         |> map(fn: (r) => ({r with _value: 1.0 - 1.0 / r._value, name: if exists r.comment then r.comment else r.dest}))
         |> group(columns: ["_time", "_value"], mode: "except")
 
