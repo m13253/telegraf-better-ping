@@ -165,6 +165,7 @@ $ docker create --name telegraf-better-ping-1 \
     -e INFLUX_BUCKET='<your bucket name>' \
     -e TELEGRAF_BETTER_PING_ARGS='<your telegraf-better-ping command line arguments>' \
     -h telegraf-better-ping-1 \
+    --cap-add CAP_NET_RAW \
     --link influxdb-1:influxdb \
     --network influxdb-net \
     m13253/telegraf-better-ping:latest
