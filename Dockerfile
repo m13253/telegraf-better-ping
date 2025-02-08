@@ -13,7 +13,8 @@ RUN apt-get update -y && \
     apt-get install -y --no-install-recommends dnsmasq && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
-ENV INFLUX_URL="http://localhost:8086" \
+ENV DNSMASQ_LISTEN_ADDR="127.0.0.53" \
+    INFLUX_URL="http://localhost:8086" \
     INFLUX_TOKEN="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" \
     INFLUX_ORG="organization" \
     INFLUX_BUCKET="bucket" \

@@ -158,6 +158,7 @@ Take note of your Telegraf-better-ping token.
 ```bash
 $ docker pull m13253/telegraf-better-ping:latest
 $ docker create --name telegraf-better-ping-1 \
+    -e DNSMASQ_LISTEN_ADDR=127.0.0.153 \
     -e INFLUX_URL='http://influxdb:8086' \
     -e INFLUX_TOKEN='<your Telegraf-better-ping token>' \
     -e INFLUX_ORG='<your organization name>' \
@@ -482,6 +483,8 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
 ### DNS caching
 
 Telegraf-better-ping does not cache DNS responses if the operating system does not have built-in caching. Therefore, the provided Docker container image has [Dnsmasq](https://dnsmasq.org) preinstalled, which caches DNS responses for Telegraf-better-ping.
+
+If you get an “dnsmasq: failed to create listening socket for port 53: Address already in use” error, try changing `-e DNSMASQ_LISTEN_ADDR=127.0.0.153` to another IP address starting with `127.0.0`.
 
 If you run Telegraf-better-ping without the provided Docker container image, you need to ensure DNS caching is working properly to prevent Telegraf-better-ping from sending out one DNS request per ping.
 
