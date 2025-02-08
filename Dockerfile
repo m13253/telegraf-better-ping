@@ -1,4 +1,4 @@
-FROM golang:1 as builder
+FROM golang:1 AS builder
 
 ADD . /root/telegraf-better-ping
 RUN apt-get update -y && \
