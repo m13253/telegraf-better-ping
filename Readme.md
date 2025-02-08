@@ -158,7 +158,6 @@ Take note of your Telegraf-better-ping token.
 ```bash
 $ docker pull m13253/telegraf-better-ping:latest
 $ docker create --name telegraf-better-ping-1 \
-    -e DNSMASQ_LISTEN_ADDR=127.0.0.153 \
     -e INFLUX_URL='http://influxdb:8086' \
     -e INFLUX_TOKEN='<your Telegraf-better-ping token>' \
     -e INFLUX_ORG='<your organization name>' \
@@ -212,6 +211,7 @@ $ docker pull m13253/telegraf-better-ping:latest
 $ docker create --name telegraf-better-ping-1 \
     -e INFLUX_TOKEN='<your API token>' \
     -h telegraf-better-ping-1 \
+    --cap-add CAP_NET_RAW \
     --link influxdb-1:influxdb \
     --network influxdb-net \
     m13253/telegraf-better-ping:latest \
@@ -485,8 +485,6 @@ Add a new visualization titled `Loss` to the new dashboard. Use the following se
 
 Telegraf-better-ping does not cache DNS responses if the operating system does not have built-in caching. Therefore, the provided Docker container image has [Dnsmasq](https://dnsmasq.org) preinstalled, which caches DNS responses for Telegraf-better-ping.
 
-If you get an “dnsmasq: failed to create listening socket for port 53: Address already in use” error, try changing `-e DNSMASQ_LISTEN_ADDR=127.0.0.153` to another IP address starting with `127.0.0`.
-
 If you run Telegraf-better-ping without the provided Docker container image, you need to ensure DNS caching is working properly to prevent Telegraf-better-ping from sending out one DNS request per ping.
 
 ### IPv6 connectivity
@@ -504,6 +502,7 @@ You will need to configure either subnet routing, NDP proxy, NAT66, or NPTv6 on 
 Alternatively, you can also run Telegraf-better-ping [using the host network](https://docs.docker.com/network/network-tutorial-host/) without enabling IPv6 inside Docker networks.
 ```bash
 $ docker create --name telegraf-better-ping-1 \
+    -e DNSMASQ_LISTEN_ADDR=127.0.0.153 \
     -e INFLUX_URL='http://127.0.0.1:8086' \
     ... \
     --network host \
@@ -513,4 +512,4 @@ $ docker create --name telegraf-better-ping-1 \
 
 However, there are two issues with this route:
 1. Inter-container name resolution does not work. So you will need to specify `INFLUX_URL='http://127.0.0.1:8086'` instead of `INFLUX_URL='http://influxdb:8086'`.
-2. The Dnsmasq DNS server in the container may conflict with any other DNS server running on `127.0.0.53` of the host network (for example, systemd-resolved).
+2. The Dnsmasq DNS server in the container may conflict with any other DNS server running on `127.0.0.53` of the host network (for example, systemd-resolved). So you need to specify an alternate address for Dnsmasq to listen on, for example `DNSMASQ_LISTEN_ADDR=127.0.0.153`.
